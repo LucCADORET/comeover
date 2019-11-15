@@ -1,5 +1,25 @@
-<div class="row h-100">
-    <div class="col bg-secondary h-50">
+<div class="row">
+    <div class="col">
+        <input placeholder="Set video timer" />
+        <button (click)="set('/hello.txt', file.value)">Set time (seconds)</button>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div [innerHTML]="info">
 
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div id="media">
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        Progress: {{progress}}
     </div>
 </div>

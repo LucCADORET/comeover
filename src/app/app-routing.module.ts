@@ -6,7 +6,7 @@ import { CinemaComponent } from './components/cinema/cinema.component';
 
 const routes: Routes = [
     { path: 'home', component: HomeComponent },
-    { path: 'cinema', component: CinemaComponent },
+    { path: 'cinema/:channelId', component: CinemaComponent },
 
     // Default redirection
     { path: '**', redirectTo: 'home' }

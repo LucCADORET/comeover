@@ -30,9 +30,7 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/ipfs/dist/index.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {
