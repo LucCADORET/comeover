@@ -4,9 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "node server.js",
-    "build": "node patch.js && ng build",
-    "build-prod": "node patch.js && ng build --configuration=production",
-    "build-staging": "node patch.js && ng build --configuration=staging",
+    "build": "node patch.js && ng build --output-path dist",
+    "build-prod": "node patch.js && ng build --output-path dist --configuration=production",
+    "build-staging": "node patch.js && ng build --output-path dist --configuration=staging",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -22,12 +22,13 @@
     "@angular/platform-browser-dynamic": "~8.2.7",
     "@angular/router": "~8.2.7",
     "bootstrap": "^4.3.1",
+    "end-of-stream": "1.4.1",
+    "express": "^4.17.1",
     "rxjs": "~6.4.0",
     "signalhub": "^4.9.0",
     "tslib": "^1.10.0",
     "uuid": "^3.3.3",
     "webrtc-swarm": "^2.9.0",
-    "end-of-stream": "1.4.1",
     "webtorrent": "^0.107.17",
     "zone.js": "~0.9.1"
   },
