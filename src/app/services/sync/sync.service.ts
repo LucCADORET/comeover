@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import swarm from 'webrtc-swarm';
 import signalhub from 'signalhub';
+import { UserData } from 'src/app/models/userData';
 
 
 @Injectable({
@@ -9,22 +9,19 @@ import signalhub from 'signalhub';
 export class SyncService {
 
   hub: any;
-  swarm: any;
   channeldId: any;
 
   constructor() {
     this.hub = signalhub('signalhub', ['https://signalhub-jccqtwhdwc.now.sh'])
   }
 
-  init(channelId) {
+  init(channelId, callback) {
     this.channeldId = channelId;
     this.hub.subscribe(this.channeldId)
-      .on('data', function (message) {
-        console.log('new message received', message);
-      })
+      .on('data', callback)
   }
 
-  broadcastToChannel(data) {
+  broadcastToChannel(data: UserData) {
     this.hub.broadcast(this.channeldId, data);
   }
 }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { SyncService } from 'src/app/services/sync.service';
 import { Router } from '@angular/router';
 import * as uuidv4 from 'uuid/v4';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-home',
@@ -13,7 +13,8 @@ export class HomeComponent implements OnInit {
   channelId: string = "";
 
   constructor(
-    private router: Router
+    private router: Router,
+    private userService: UserService,
   ) { }
 
   ngOnInit() {
@@ -21,10 +22,11 @@ export class HomeComponent implements OnInit {
 
   createNewChannel() {
     this.channelId = uuidv4();
-    this.joinChannel(true);
+    this.userService.currentUserIsCreator();
+    this.joinChannel();
   }
 
-  joinChannel(isCreator) {
-    this.router.navigate(['/cinema', this.channelId], { queryParams: { 'is_creator': isCreator } });
+  joinChannel() {
+    this.router.navigate(['/cinema', this.channelId]);
   }
 }
