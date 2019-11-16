@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node server.js",
     "build": "node patch.js && ng build",
     "build-prod": "node patch.js && ng build --configuration=production",
     "build-staging": "node patch.js && ng build --configuration=staging",
@@ -27,6 +27,7 @@
     "tslib": "^1.10.0",
     "uuid": "^3.3.3",
     "webrtc-swarm": "^2.9.0",
+    "end-of-stream": "1.4.1",
     "webtorrent": "^0.107.17",
     "zone.js": "~0.9.1"
   },

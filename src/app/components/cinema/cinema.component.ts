@@ -16,7 +16,6 @@ export class CinemaComponent implements OnInit {
   @ViewChild('videoPlayer', { static: false }) videoPlayer: ElementRef;
 
   channelId: string;
-  magnet: string;
   progress: string;
   info: string;
   error: string;
@@ -37,15 +36,11 @@ export class CinemaComponent implements OnInit {
     this.isCreator = this.userService.isUserCreator();
 
     // The creator creates the torrent
-    if (this.isCreator) {
-      this.magnet = "magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent";
-      this.addTorrent();
-    }
-
     // The others will wait on messages to get their version of the torrent 
-    else {
-
+    if (this.isCreator) {
+      this.startTorrent();
     }
+
     this.syncService.init(this.channelId, this.onMessage.bind(this));
     this.startBroadcasting();
   }
@@ -58,7 +53,7 @@ export class CinemaComponent implements OnInit {
         userId: this.userId,
         isCreator: this.isCreator,
         currentTime: this.getVideoCurrentTime(),
-        magnet: this.magnet,
+        magnet: this.webTorrentService.getMagnet(),
         paused: this.isVideoPaused(),
       }
 
@@ -73,9 +68,10 @@ export class CinemaComponent implements OnInit {
     // The creator doesn't synchronize with anyone, and nobody synchronizes with people other than the creator
     if (this.isCreator || !data.isCreator) return;
 
-    if (this.magnet == null) {
-      this.magnet = data.magnet;
-      this.addTorrent();
+    // Add the magnet is none is registered yet
+    if (this.webTorrentService.getMagnet() == null) {
+      this.webTorrentService.setMagnet(data.magnet);
+      this.startTorrent();
     }
 
     // Set current video time if the shift is too high
@@ -94,8 +90,8 @@ export class CinemaComponent implements OnInit {
     }
   }
 
-  addTorrent() {
-    this.webTorrentService.add(this.magnet, this.onTorrent.bind(this));
+  startTorrent() {
+    this.webTorrentService.startTorrent(this.onTorrent.bind(this));
   }
 
   onTorrent(torrent) {
@@ -118,7 +114,7 @@ export class CinemaComponent implements OnInit {
     })
 
     let opts = null;
-    if (!this.isCreator) opts = { autoplay: true, controls: false, muted: true };
+    if (!this.isCreator) opts = { autoplay: true, muted: true };
 
     // Render all files into to the page
     torrent.files.forEach(function (file) {

@@ -13,7 +13,7 @@ export class UserService {
     this.userId = uuidv4();
   }
 
-  public currentUserIsCreator() {
+  public setIsCreator() {
     this.isCreator = true;
   }
 
