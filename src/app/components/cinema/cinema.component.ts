@@ -50,7 +50,7 @@ export class CinemaComponent implements OnInit, AfterViewInit {
     let opts = {};
 
     // Determine controls depending on if the user is the creator or not
-    if(this.isCreator) {
+    if (this.isCreator) {
       opts = {
         controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'pip', 'airplay', 'fullscreen']
       }
@@ -137,12 +137,14 @@ export class CinemaComponent implements OnInit, AfterViewInit {
 
     // Render all files into to the page
     torrent.files.forEach(function (file) {
-      if (self.isVideoFile(file)) file.renderTo('video#player', opts);
+      if (self.isVideoFile(file)) {
+        file.renderTo('video#player', opts);
+      }
     })
   }
 
   isVideoFile(file): boolean {
-    return file.name.endsWith('.mp4');
+    return file.name.endsWith('.mp4') || file.name.endsWith('.mkv');
   }
 
   isVideoPaused(): boolean {

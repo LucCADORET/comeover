@@ -40,6 +40,9 @@ export class HomeComponent implements OnInit {
   }
 
   handleFileInput(files: FileList) {
+
+    // TODO: check for the file type !!!
+
     this.fileToSeed = files.item(0);
   }
 }
