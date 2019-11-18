@@ -1,20 +1,21 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WebTorrentService } from 'src/app/services/web-torrent/web-torrent.service';
 import { SyncService } from 'src/app/services/sync/sync.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { UserData } from 'src/app/models/userData';
-
+import Plyr from 'plyr';
 
 @Component({
   selector: 'app-cinema',
   templateUrl: './cinema.component.html',
   styleUrls: ['./cinema.component.scss']
 })
-export class CinemaComponent implements OnInit {
+export class CinemaComponent implements OnInit, AfterViewInit {
 
-  @ViewChild('videoPlayer', { static: false }) videoPlayer: ElementRef;
+  @ViewChild('videoElem', { static: false }) videoElem: ElementRef;
 
+  player: any;
   channelId: string;
   progress: string;
   info: string;
@@ -43,6 +44,24 @@ export class CinemaComponent implements OnInit {
 
     this.syncService.init(this.channelId, this.onMessage.bind(this));
     this.startBroadcasting();
+  }
+
+  ngAfterViewInit() {
+    let opts = {};
+
+    // Determine controls depending on if the user is the creator or not
+    if(this.isCreator) {
+      opts = {
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'pip', 'airplay', 'fullscreen']
+      }
+    } else {
+      opts = {
+        controls: ['current-time', 'mute', 'volume', 'captions', 'pip', 'fullscreen'],
+        clickToPlay: false,
+        keyboard: { focused: false, global: false }
+      }
+    }
+    this.player = new Plyr(this.videoElem.nativeElement, opts);
   }
 
   // Broadcast the current time of the stream
@@ -127,24 +146,24 @@ export class CinemaComponent implements OnInit {
   }
 
   isVideoPaused(): boolean {
-    return this.videoPlayer.nativeElement.paused;
+    return this.videoElem.nativeElement.paused;
   }
 
   playVideo(): void {
-    this.videoPlayer.nativeElement.play();
+    this.videoElem.nativeElement.play();
   }
 
   pauseVideo(): void {
-    this.videoPlayer.nativeElement.pause();
+    this.videoElem.nativeElement.pause();
   }
 
   setVideoCurrentTime(time: number) {
-    if (!this.videoPlayer) return;
-    return this.videoPlayer.nativeElement.currentTime = time;
+    if (!this.videoElem) return;
+    return this.videoElem.nativeElement.currentTime = time;
   }
 
   getVideoCurrentTime(): number {
-    if (!this.videoPlayer) return 0;
-    return this.videoPlayer.nativeElement.currentTime;
+    if (!this.videoElem) return 0;
+    return this.videoElem.nativeElement.currentTime;
   }
 }
