@@ -1,0 +1,41 @@
+<div class="modal-header">
+    <h4 class="modal-title">Select a file to stream</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group row">
+            <label for="colFormLabelSm" class="col-sm-4 col-form-label col-form-label">Video file (.mp4)</label>
+            <div class="col-sm-8">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile"
+                        (change)="handleVideoFileInput($event.target.files)">
+                    <label class="custom-file-label"
+                        for="customFile">{{videoFile ? videoFile.name : 'Choose file'}}</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="colFormLabel" class="col-sm-4 col-form-label">Subtitles (.srt or .vtt)</label>
+            <div class="col-sm-8">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="customFile"
+                        (change)="handleSubtitlesFileInput($event.target.files)">
+                    <label class="custom-file-label"
+                        for="customFile">{{subtitlesFile ? subtitlesFile.name : 'Choose file'}}</label>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row" *ngIf="error">
+        <div class="col">
+            <div class="alert alert-danger">{{error}}</div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Close</button>
+    <button type="button" class="btn btn-success" (click)="validate()" [disabled]="!videoFile">Validate</button>
+</div>

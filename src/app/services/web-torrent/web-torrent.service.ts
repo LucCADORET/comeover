@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
 
 import WebTorrent from 'webtorrent';
 
@@ -8,37 +7,37 @@ import WebTorrent from 'webtorrent';
 })
 export class WebTorrentService {
 
-  private magnet: string;
-  private fileToSeed: File;
+  private _magnet: string;
+  private _filesToSeed: File[];
   private client: any;
 
   constructor() {
     this.client = new WebTorrent();
   }
 
-  getMagnet(): string {
-    return this.magnet;
+  get magnet(): string {
+    return this._magnet;
   }
 
-  setMagnet(magnet: string) {
-    this.magnet = magnet;
+  set magnet(magnet: string) {
+    this._magnet = magnet;
   }
 
-  setFileToSeed(file: File) {
-    this.fileToSeed = file;
+  set filesToSeed(files: File[]) {
+    this._filesToSeed = files;
   }
 
   startTorrent(callback: any) {
-    if (this.fileToSeed) {
-      let options = {
-        name: this.fileToSeed.name
-      }
-      this.client.seed(this.fileToSeed, options, (torrent) => {
-        this.magnet = torrent.magnetURI;
+    if (this._filesToSeed) {
+      // let options = {
+      //   name: uuidv4()
+      // }
+      this.client.seed(this._filesToSeed, (torrent) => {
+        this._magnet = torrent.magnetURI;
         callback(torrent)
       });
-    } else if (this.magnet) {
-      this.client.add(this.magnet, callback);
+    } else if (this._magnet) {
+      this.client.add(this._magnet, callback);
     }
   }
 }

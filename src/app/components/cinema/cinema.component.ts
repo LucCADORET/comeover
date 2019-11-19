@@ -14,6 +14,7 @@ import Plyr from 'plyr';
 export class CinemaComponent implements OnInit, AfterViewInit {
 
   @ViewChild('videoElem', { static: false }) videoElem: ElementRef;
+  @ViewChild('subtitlesElem', { static: false }) subtitlesElem: ElementRef;
 
   player: any;
   channelId: string;
@@ -72,7 +73,7 @@ export class CinemaComponent implements OnInit, AfterViewInit {
         userId: this.userId,
         isCreator: this.isCreator,
         currentTime: this.getVideoCurrentTime(),
-        magnet: this.webTorrentService.getMagnet(),
+        magnet: this.webTorrentService.magnet,
         paused: this.isVideoPaused(),
       }
 
@@ -88,8 +89,8 @@ export class CinemaComponent implements OnInit, AfterViewInit {
     if (this.isCreator || !data.isCreator) return;
 
     // Add the magnet is none is registered yet
-    if (this.webTorrentService.getMagnet() == null) {
-      this.webTorrentService.setMagnet(data.magnet);
+    if (this.webTorrentService.magnet == null) {
+      this.webTorrentService.magnet = data.magnet;
       this.startTorrent();
     }
 
@@ -139,12 +140,22 @@ export class CinemaComponent implements OnInit, AfterViewInit {
     torrent.files.forEach(function (file) {
       if (self.isVideoFile(file)) {
         file.renderTo('video#player', opts);
+      } else if (self.isSubtitleFile(file)) {
+
+        // Get subtitle blob in order to set it on the view
+        file.getBlobURL(function (err, url) {
+          self.subtitlesElem.nativeElement.src = url;
+        });
       }
     })
   }
 
   isVideoFile(file): boolean {
     return file.name.endsWith('.mp4');
+  }
+
+  isSubtitleFile(file): boolean {
+    return file.name.endsWith('.vtt');
   }
 
   isVideoPaused(): boolean {
