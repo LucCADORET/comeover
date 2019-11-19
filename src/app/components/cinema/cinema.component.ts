@@ -144,7 +144,7 @@ export class CinemaComponent implements OnInit, AfterViewInit {
   }
 
   isVideoFile(file): boolean {
-    return file.name.endsWith('.mp4') || file.name.endsWith('.mkv');
+    return file.name.endsWith('.mp4');
   }
 
   isVideoPaused(): boolean {
