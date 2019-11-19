@@ -2,15 +2,7 @@
     <div class="col">
         <div class="row">
             <div class="col d-flex justify-content-end">
-                Copy torrent magnet
-            </div>
-            <div class="col d-flex justify-content-start">
-                <textarea rows="5" cols="50" [(ngModel)]="magnet"></textarea>
-            </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col d-flex justify-content-end">
-                Or upload you own file
+                Stream a file
             </div>
             <div class="col d-flex justify-content-start">
                 <input type="file" (change)="handleFileInput($event.target.files)">
