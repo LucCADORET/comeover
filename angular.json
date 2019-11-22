@@ -25,7 +25,17 @@
             "aot": false,
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "worker-ffmpeg.js",
+                "input": "./src/workers",
+                "output": "/workers/"
+              },
+              {
+                "glob": "ffmpeg-core.js",
+                "input": "./node_modules/@ffmpeg/core",
+                "output": "/libs/"
+              }
             ],
             "styles": [
               "src/styles.scss"

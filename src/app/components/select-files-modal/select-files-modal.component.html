@@ -7,14 +7,15 @@
 <div class="modal-body">
     <form>
         <div class="form-group row">
-            <label for="colFormLabelSm" class="col-sm-4 col-form-label col-form-label">Video file (.mp4)</label>
+            <label for="colFormLabelSm" class="col-sm-4 col-form-label col-form-label">Video file (.mp4 or .mkv)</label>
             <div class="col-sm-8">
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile"
                         (change)="handleVideoFileInput($event.target.files)">
                     <label class="custom-file-label"
                         for="customFile">{{videoFile ? videoFile.name : 'Choose file'}}</label>
-                </div>
+                </div><br>
+                <small class="text-warning" *ngIf="mkvWarning"><i class="fas fa-exclamation-triangle"></i>&nbsp;{{mkvWarning}}</small>
             </div>
         </div>
         <div class="form-group row">
