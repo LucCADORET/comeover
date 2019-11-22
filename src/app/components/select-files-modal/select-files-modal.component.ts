@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import VTTConverter from 'srt-webvtt';
+import { resolve } from 'url';
+import { reject } from 'q';
 
 @Component({
   selector: 'app-select-files-modal',
@@ -21,64 +23,68 @@ export class SelectFilesModalComponent implements OnInit {
   ngOnInit() {
   }
 
-  validate() {
+  // If file has mkv format, it will perform a convertion
+  convertVideoFileIfNeeded(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
 
-    // Convert mkv files
-    if (this.videoFile.type == 'video/x-matroska') {
+      if (this.videoFile.type == 'video/x-matroska') {
+        // Start worker for the convertion
+        var worker = new Worker("workers/worker-ffmpeg.js");
+        let self = this;
+        let mkvName = file.name;
+        let mp4Name = mkvName.replace('.mkv', '.mp4');
 
-      // Start worker for the convertion
-      var worker = new Worker("workers/worker-ffmpeg.js");
-      let self = this;
+        worker.onmessage = function (e) {
+          var msg = e.data;
+          switch (msg.type) {
+            case "ready":
 
-      worker.onmessage = function (e) {
-        var msg = e.data;
-        switch (msg.type) {
-          case "ready":
+              // Add file to MEMFS
+              var reader = new FileReader();
 
-            // Add file to MEMFS
-            var reader = new FileReader();
+              reader.addEventListener("loadend", function () {
+                let buffer = reader.result as ArrayBuffer;
+                var mkvUint8Array = new Uint8Array(buffer);
 
-            reader.addEventListener("loadend", function () {
-              let buffer = reader.result as ArrayBuffer;
-              var mkvUint8Array = new Uint8Array(buffer);
 
-              let mkvName = self.videoFile.name;
-              let mp4Name = mkvName.replace('.mkv', '.mp4');
-
-              // Encode test video to VP8.
-              worker.postMessage({
-                type: "command",
-                arguments: ["-i", mkvName, "-c", "copy", mp4Name],
-                files: [{
-                  data: mkvUint8Array,
-                  name: mkvName,
-                }]
+                // Encode test video to VP8.
+                worker.postMessage({
+                  type: "command",
+                  file: {
+                    data: mkvUint8Array,
+                    name: mkvName,
+                  }
+                });
               });
-            });
 
-            reader.readAsArrayBuffer(self.videoFile);
-            break;
-          case "stdout":
-            console.log(msg.data + "\n");
-            break;
-          case "stderr":
-            console.log(msg.data + "\n");
-            break;
-          case "error":
-            console.log(msg.data + "\n");
-            break;
-          case "done":
-            console.log(msg.data);
-            break;
-          case "exit":
-            console.log("Process exited with code " + msg.data);
-            worker.terminate();
-            break;
-        }
-      };
-    }
+              reader.readAsArrayBuffer(self.videoFile);
+              break;
+            case "stdout":
+              console.log(msg.data + "\n");
+              break;
+            case "stderr":
+              console.log(msg.data + "\n");
+              break;
+            case "error":
+              console.log(msg.data + "\n");
+              break;
+            case "done":
+              resolve(new File([msg.data as Uint8Array], mp4Name, { type: 'video/mp4' }));
+              break;
+            case "exit":
+              console.log("Process exited with code " + msg.data);
+              worker.terminate();
+              break;
+          }
+        };
+      } else {
+        resolve(file);
+      }
+    });
+  }
 
-    if (this.subtitlesFile) {
+  convertSubtitlesIfNeeded(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
       if (this.subtitlesFile.type == 'application/x-subrip') {
         const vttConverter = new VTTConverter(this.subtitlesFile); // the constructor accepts a parameer of SRT subtitle blob/file object
         let self = this;
@@ -87,17 +93,28 @@ export class SelectFilesModalComponent implements OnInit {
             fetch(url).then(res => {
               return res.blob()
             }).then(blob => {
-              let vttFile = new File([blob], self.subtitlesFile.name + '.vtt', { type: 'text/vtt' });
-              self.activeModal.close([self.videoFile, vttFile]);
+              resolve(new File([blob], self.subtitlesFile.name + '.vtt', { type: 'text/vtt' }));
             });
           });
       } else {
-        this.activeModal.close([this.videoFile, this.subtitlesFile]);
+        resolve(file);
       }
-    }
-    else {
-      // this.activeModal.close([this.videoFile]); // TODO: uncumment
-    }
+    });
+  }
+
+  validate() {
+    this.convertVideoFileIfNeeded(this.videoFile).then((file: File) => {
+      this.videoFile = file;
+      if (this.subtitlesFile) {
+        this.convertSubtitlesIfNeeded(this.subtitlesFile).then((file: File) => {
+          this.subtitlesFile = file;
+          this.activeModal.close([this.videoFile, this.subtitlesFile]);
+        });
+      }
+      else {
+        this.activeModal.close([this.videoFile]);
+      }
+    });
   }
 
   handleVideoFileInput(files: FileList) {

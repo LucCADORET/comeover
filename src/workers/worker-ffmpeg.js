@@ -1,10 +1,12 @@
 // this file is used to run ffmpeg_asm.js!
 // however, it is included in the HTML as "processInWebWorker" method instead of linking as a separate javascript file!
 
-const FFMpegCore = importScripts('/libs/ffmpeg-core.js');
+importScripts('/libs/ffmpeg-core.js');
+let FFmpegCore = Module;
+// This automatically imports a global 'Module' variable
 
-// Module getter/setter par
-let Module = null;
+// Module getter/setter part
+// let Module = null;
 let setModule = m => {
     Module = m;
 };
@@ -35,28 +37,33 @@ let getFFmpeg = () => {
     const Module = getModule();
     return Module.cwrap('ffmpeg', 'number', ['number', 'number']);
 };
-let transcode = (inputPath, outputExt, options = '') => {
+let defaultArgs = [
+    './ffmpeg',       // args[0] is always binary path
+    // '-nostdin',       // Disable interaction mode
+    // '-loglevel',
+    // 'quiet',
+]
+
+let transcode = (file) => {
     const Module = getModule();
-    const data = new Uint8Array(fs.readFileSync(inputPath));
-    const iPath = `file.${inputPath.split('.').pop()}`;
-    const oPath = `file.${outputExt}`;
+    const data = file.data; // Should be an Uint8Array
+    const iPath = `file.${file.name.split('.').pop()}`;
+    const oPath = `file.mp4`;
     const ffmpeg = getFFmpeg();
-    const args = [...defaultArgs, ...`${options} -i ${iPath} -c copy ${oPath}`.trim().split(' ')];
+    const args = [...defaultArgs, ...` -i ${iPath} -c copy ${oPath}`.trim().split(' ')];
     Module.FS.writeFile(iPath, data);
     ffmpeg(args.length, strList2ptr(args));
-    return Buffer.from(Module.FS.readFile(oPath));
+    return Uint8Array.from(Module.FS.readFile(oPath));
 };
 
-
+// Load FFmpegCore
 let load = new Promise((resolve, reject) => {
     FFmpegCore()
         .then((Module) => {
             setModule(Module);
             resolve();
         });
-})
-
-
+});
 var now = Date.now;
 
 function print(text) {
@@ -65,36 +72,21 @@ function print(text) {
         'data': text
     });
 }
+
 onmessage = function (event) {
 
     var message = event.data;
 
     if (message.type === "command") {
 
-        var Module = {
-            print: print,
-            printErr: print,
-            files: message.files || [],
-            arguments: message.arguments || [],
-            // TOTAL_MEMORY: message.TOTAL_MEMORY || false
-            // Can play around with this option - must be a power of 2
-            TOTAL_MEMORY: 8 * 1024 * 1024 * 1024
-        };
-
-        postMessage({
-            'type': 'start',
-            'data': Module.arguments.join(" ")
-        });
-
         postMessage({
             'type': 'stdout',
-            'data': 'Received command: ' +
-                Module.arguments.join(" ") +
-                ((Module.TOTAL_MEMORY) ? ".  Processing with " + Module.TOTAL_MEMORY + " bits." : "")
+            'data': 'Starting to transcode ' + message.file.name
         });
 
         var time = now();
-        var result = ffmpeg_run(Module);
+
+        const result = transcode(message.file);
 
         var totalTime = now() - time;
         postMessage({
@@ -110,6 +102,9 @@ onmessage = function (event) {
     }
 };
 
-postMessage({
-    'type': 'ready'
+// Load FFMpegCore library
+load.then(() => {
+    postMessage({
+        'type': 'ready'
+    });
 });
