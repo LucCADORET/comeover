@@ -103,6 +103,7 @@ export class SelectFilesModalComponent implements OnInit {
   }
 
   validate() {
+    this.validateLoading = true;
     this.convertVideoFileIfNeeded(this.videoFile).then((file: File) => {
       this.videoFile = file;
       if (this.subtitlesFile) {

@@ -1,0 +1,8 @@
+// Override default bootstrap styles
+::ng-deep .tab-content {
+    border-left: 1px solid rgba(0, 0, 0, 0.125);
+    border-right: 1px solid rgba(0, 0, 0, 0.125);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: calc(0.25rem - 1px);
+    flex-grow: 1;
+}

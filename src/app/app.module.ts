@@ -8,13 +8,15 @@ import { AppComponent } from './app.component';
 import { CinemaComponent } from './components/cinema/cinema.component';
 import { HomeComponent } from './components/home/home.component';
 import { SelectFilesModalComponent } from './components/select-files-modal/select-files-modal.component';
+import { SocialComponent } from './components/social/social.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CinemaComponent,
     HomeComponent,
-    SelectFilesModalComponent
+    SelectFilesModalComponent,
+    SocialComponent
   ],
   imports: [
     BrowserModule,

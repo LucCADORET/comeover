@@ -1,25 +1,25 @@
 <div class="row">
-    <div class="col">
-        <input placeholder="Set video timer" />
-        <button (click)="set('/hello.txt', file.value)">Set time (seconds)</button>
-    </div>
-</div>
-<div class="row">
-    <div class="col">
-        <div [innerHTML]="info">
-
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col">
+    <div class="col-md-8">
         <video id="player" #videoElem>
             <track default id="subtitles" #subtitlesElem>
         </video>
     </div>
+    <div class="col-md-4">
+        <app-social class="d-flex flex-column h-100"></app-social>
+    </div>
 </div>
-<div class="row">
+
+<!--Torrent info-->
+<div class="row mt-3">
     <div class="col">
-        Progress: {{progress}}
+        <ngb-accordion #acc="ngbAccordion">
+            <ngb-panel title="Torrent info">
+                <ng-template ngbPanelContent>
+                    <div [innerHTML]="info"> </div>
+                    <!--TODO: show other torrent info: connected peers, seeding/leeching of each of them-->
+                    Progress: {{progress}}
+                </ng-template>
+            </ngb-panel>
+        </ngb-accordion>
     </div>
 </div>
