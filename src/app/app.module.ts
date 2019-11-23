@@ -9,14 +9,16 @@ import { CinemaComponent } from './components/cinema/cinema.component';
 import { HomeComponent } from './components/home/home.component';
 import { SelectFilesModalComponent } from './components/select-files-modal/select-files-modal.component';
 import { SocialComponent } from './components/social/social.component';
+import { UserSettingsModalComponent } from './components/user-settings-modal/user-settings-modal.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CinemaComponent,
     HomeComponent,
+    SocialComponent,
     SelectFilesModalComponent,
-    SocialComponent
+    UserSettingsModalComponent
   ],
   imports: [
     BrowserModule,
@@ -26,6 +28,6 @@ import { SocialComponent } from './components/social/social.component';
   ],
   providers: [],
   bootstrap: [AppComponent],
-  entryComponents: [SelectFilesModalComponent]
+  entryComponents: [SelectFilesModalComponent, UserSettingsModalComponent]
 })
 export class AppModule { }

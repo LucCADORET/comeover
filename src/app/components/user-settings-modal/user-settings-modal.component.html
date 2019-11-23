@@ -1,0 +1,23 @@
+<div class="modal-header">
+    <h4 class="modal-title">Settings</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form class="form-inline">
+        <label class="my-1 mr-2" for="inlineFormInputNickname">Nickname</label>
+        <input type="text" class="form-control" id="inlineFormInputNickname">
+    </form>
+    <div class="row" *ngIf="error">
+        <div class="col">
+            <div class="alert alert-danger">{{error}}</div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Close</button>
+    <button type="button" class="btn btn-success" (click)="validate()" [disabled]="validateLoading">
+        <i class="fas fa-spinner fa-spin mr-2" *ngIf="validateLoading"></i>Validate
+    </button>
+</div>
