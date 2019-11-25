@@ -1,10 +1,23 @@
-<div class="flex-grow-1 d-flex flex-column">
-    <ngb-tabset activeId="ngb-tab-1" class="flex-grow-1 d-flex flex-column">
+<div class="flex-grow-1 d-flex flex-column h-100">
+    <ngb-tabset activeId="ngb-tab-0" class="flex-grow-1 d-flex flex-column h-100">
         <ngb-tab>
             <ng-template ngbTabTitle>Chat</ng-template>
             <ng-template ngbTabContent>
-                <div class="social-tab-content">
-                    Coming soon™
+                <div class="social-tab-content flex-grow-1 d-flex flex-column p-3 h-100">
+                    <div class="flex-grow-1 h-100">
+                        <ul class="px-0 h-100 message-list">
+                            <li #chatMessageElem *ngFor="let chatMessage of chatMessages" class="user-list-elem">
+                                <span [style.color]="chatMessage.color"
+                                    [style.font-weight]="chatMessage.userId == userId ? 'bold': 'normal'">
+                                    {{chatMessage.username}}</span>&nbsp;:&nbsp;<span>{{chatMessage.content}}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <input class="form-control form-control-sm mt-2" type="text" [(ngModel)]="message"
+                            (keydown.enter)="sendChatMessage()">
+                    </div>
                 </div>
             </ng-template>
         </ngb-tab>
@@ -16,7 +29,8 @@
                         <li *ngFor="let user of connectedUsers" class="user-list-elem">
                             <span [style.color]="user.color"
                                 [style.font-weight]="user.userId == userId ? 'bold': 'normal'">
-                                {{user.username}}</span>&nbsp;<i class="fas fa-crown text-warning" *ngIf="user.isCreator"></i>
+                                {{user.username}}</span>&nbsp;<i class="fas fa-crown text-warning"
+                                *ngIf="user.isCreator"></i>
                         </li>
                     </ul>
                 </div>

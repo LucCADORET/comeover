@@ -1,12 +1,35 @@
 // Override default bootstrap styles
 ::ng-deep .tab-content {
-    border-left: 1px solid rgba(0, 0, 0, 0.125);
-    border-right: 1px solid rgba(0, 0, 0, 0.125);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-    border-radius: calc(0.25rem - 1px);
-    flex-grow: 1;
+  border-left: 1px solid rgba(0, 0, 0, 0.125);
+  border-right: 1px solid rgba(0, 0, 0, 0.125);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: calc(0.25rem - 1px);
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+}
+
+// Override default bootstrap styles
+::ng-deep .tab-pane {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+}
+
+// Override default bootstrap styles
+::ng-deep .tab-content > .active {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .user-list-elem {
-    list-style-type: none;
+  list-style-type: none;
+  font-size: 0.875rem;
+}
+
+.message-list {
+    overflow: auto;
 }

@@ -44,7 +44,7 @@ export class CinemaComponent implements OnInit, AfterViewInit {
     }
 
     this.syncService.init(this.channelId);
-    this.syncService.getMessageObservable().subscribe(this.onMessage.bind(this));
+    this.syncService.getUserDataObservable().subscribe(this.onUserData.bind(this));
     this.startBroadcasting();
   }
 
@@ -81,11 +81,11 @@ export class CinemaComponent implements OnInit, AfterViewInit {
         paused: this.isVideoPaused(),
       });
 
-      this.syncService.broadcastToChannel(dataToBroadcast);
+      this.syncService.broadcastUserData(dataToBroadcast);
     }, 5000);
   }
 
-  onMessage(data: UserData) {
+  onUserData(data: UserData) {
 
     console.log(data);
 

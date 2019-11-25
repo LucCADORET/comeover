@@ -1,22 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, QueryList, AfterViewInit, ViewChildren } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserSettingsModalComponent } from '../user-settings-modal/user-settings-modal.component';
 import { UserService } from 'src/app/services/user/user.service';
 import { SyncService } from 'src/app/services/sync/sync.service';
 import { UserData } from 'src/app/models/userData';
+import { ChatMessage } from 'src/app/models/chatMessage';
 
 @Component({
   selector: 'app-social',
   templateUrl: './social.component.html',
   styleUrls: ['./social.component.scss']
 })
-export class SocialComponent implements OnInit {
+export class SocialComponent implements OnInit, AfterViewInit {
 
+  @ViewChildren('chatMessageElem') chatMessageElem: QueryList<ElementRef>;
   userId: string;
   username: string;
   color: string;
-
-  connectedUsers: UserData[] = [];
+  message: string = "";
+  connectedUsers: UserData[] = new Array<UserData>();
+  chatMessages: ChatMessage[] = new Array<ChatMessage>();
   timeoutMs: number = 30000;
 
   constructor(
@@ -29,7 +32,16 @@ export class SocialComponent implements OnInit {
     this.username = this.userService.getUsername();
     this.color = this.userService.getColor();
     this.userId = this.userService.getUserId();
-    this.syncService.getMessageObservable().subscribe(this.onMessage.bind(this));
+    this.syncService.getUserDataObservable().subscribe(this.onUserData.bind(this));
+    this.syncService.getChatMessageObservable().subscribe(this.onChatMessage.bind(this));
+  }
+
+  ngAfterViewInit() {
+    this.chatMessageElem.changes.subscribe(() => {
+      if (this.chatMessageElem && this.chatMessageElem.last) {
+        this.chatMessageElem.last.nativeElement.scrollIntoView();
+      }
+    });
   }
 
   openUserSettingsModal() {
@@ -40,7 +52,7 @@ export class SocialComponent implements OnInit {
     });
   }
 
-  onMessage(data: UserData) {
+  onUserData(data: UserData) {
 
     // Check if user already in list
     let user = this.connectedUsers.find(u => u.userId == data.userId);
@@ -58,5 +70,21 @@ export class SocialComponent implements OnInit {
     // Kick out users that timed out
     let now = new Date().getTime();
     this.connectedUsers = this.connectedUsers.filter(u => (u.timestamp + this.timeoutMs) > now);
+  }
+
+  onChatMessage(data: ChatMessage) {
+    this.chatMessages.push(data);
+  }
+
+  sendChatMessage() {
+    if (!this.message) return;
+    let chatMessage = new ChatMessage({
+      username: this.username,
+      color: this.color,
+      content: this.message,
+      timestamp: new Date().getTime()
+    });
+    this.syncService.broadcastChatMessage(chatMessage);
+    this.message = "";
   }
 }

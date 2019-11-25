@@ -1,6 +1,18 @@
-
 // Override default bootstrap CSS (with no borders for 1st element
 ::ng-deep .accordion > .card:first-of-type {
   border-bottom: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: calc(0.25rem - 1px);
+}
+
+::ng-deep .plyr {
+  flex-grow: 1;
+}
+
+app-social {
+  height: 65vh;
+  width: 300px;
+}
+
+#player {
+  height: 65vh;
 }
