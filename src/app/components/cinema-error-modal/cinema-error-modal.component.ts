@@ -19,6 +19,6 @@ export class CinemaErrorModalComponent implements OnInit {
 
   understood() {
     this.router.navigate(['/home']);
-    this.activeModal.dismiss();
+    this.activeModal.close();
   }
 }
