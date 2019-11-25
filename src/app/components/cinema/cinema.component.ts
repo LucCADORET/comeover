@@ -43,7 +43,8 @@ export class CinemaComponent implements OnInit, AfterViewInit {
       this.startTorrent();
     }
 
-    this.syncService.init(this.channelId, this.onMessage.bind(this));
+    this.syncService.init(this.channelId);
+    this.syncService.getMessageObservable().subscribe(this.onMessage.bind(this));
     this.startBroadcasting();
   }
 
@@ -69,13 +70,16 @@ export class CinemaComponent implements OnInit, AfterViewInit {
   startBroadcasting() {
     var interval = setInterval(() => {
 
-      let dataToBroadcast: UserData = {
+      let dataToBroadcast = new UserData({
+        timestamp: new Date().getTime(),
         userId: this.userId,
+        username: this.userService.getUsername(),
+        color: this.userService.getColor(),
         isCreator: this.isCreator,
         currentTime: this.getVideoCurrentTime(),
         magnet: this.webTorrentService.magnet,
         paused: this.isVideoPaused(),
-      }
+      });
 
       this.syncService.broadcastToChannel(dataToBroadcast);
     }, 5000);

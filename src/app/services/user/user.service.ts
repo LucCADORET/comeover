@@ -14,13 +14,15 @@ export class UserService {
   private isCreator: boolean = false;
 
   constructor(colorsService: ColorsService) {
-    this.userId = uuidv4();
+
+    this.userId = localStorage.getItem("user_userId");
+    if (!this.userId) this.setUserId(uuidv4());
 
     this.color = localStorage.getItem("user_color");
-    if (!this.color) this.color = colorsService.getRandomColor();
+    if (!this.color) this.setColor(colorsService.getRandomColor());
 
     this.username = localStorage.getItem("user_username");
-    if (!this.username) this.username = randomUsernameGenerator.generate();
+    if (!this.username) this.setUsername(randomUsernameGenerator.generate());
   }
 
   public setIsCreator() {
@@ -41,6 +43,11 @@ export class UserService {
 
   public getColor(): string {
     return this.color;
+  }
+
+  private setUserId(uuid: string) {
+    this.userId = uuid;
+    localStorage.setItem("user_userId", this.userId);
   }
 
   public setUsername(username: string) {
