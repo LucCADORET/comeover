@@ -29,6 +29,7 @@
     "express": "^4.17.1",
     "ffmpeg.js": "^3.1.9001",
     "plyr": "^3.5.6",
+    "random-username-generator": "^1.0.4",
     "rxjs": "~6.4.0",
     "signalhub": "^4.9.0",
     "srt-webvtt": "^1.0.1",

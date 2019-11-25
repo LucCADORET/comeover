@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-user-settings-modal',
@@ -8,9 +9,31 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class UserSettingsModalComponent implements OnInit {
 
-  constructor(public activeModal: NgbActiveModal) { }
+  username: string;
+  color: string;
+
+  constructor(
+    public activeModal: NgbActiveModal,
+    private userService: UserService
+  ) { }
 
   ngOnInit() {
+    this.username = this.userService.getUsername();
+    this.color = this.userService.getColor();
   }
 
+  validate() {
+    this.userService.setUsername(this.username);
+    this.userService.setColor(this.color);
+    this.activeModal.close();
+  }
+
+  /**
+   * Set color from color picker
+   * @param {string} type
+   * @param {string} color
+   */
+  public setColor(color: string) {
+    this.color = color;
+  }
 }

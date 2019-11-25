@@ -19,6 +19,6 @@
     </ngb-tabset>
 </div>
 <div class="mt-2">
-    <span>You are <span style="color: brown;"><b>SpaceDandy</b></span></span>
+    <span>You are <span [style.color]="color"><b>{{username}}</b></span></span>
     <button class="btn btn-link btn-sm" (click)="openUserSettingsModal()"><i class="fas fa-pencil-alt"></i></button>
 </div>

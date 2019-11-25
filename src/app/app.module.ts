@@ -10,6 +10,7 @@ import { HomeComponent } from './components/home/home.component';
 import { SelectFilesModalComponent } from './components/select-files-modal/select-files-modal.component';
 import { SocialComponent } from './components/social/social.component';
 import { UserSettingsModalComponent } from './components/user-settings-modal/user-settings-modal.component';
+import { ColorPickerComponent } from './components/color-picker/color-picker.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { UserSettingsModalComponent } from './components/user-settings-modal/use
     HomeComponent,
     SocialComponent,
     SelectFilesModalComponent,
-    UserSettingsModalComponent
+    UserSettingsModalComponent,
+    ColorPickerComponent
   ],
   imports: [
     BrowserModule,
