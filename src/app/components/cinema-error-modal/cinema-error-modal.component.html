@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h4 class="modal-title">Settings</h4>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-danger">
+                <p>Streaming data couldn't be fetched. Here's some insights for troubleshooting:</p>
+                <ul>
+                    <li>This room doesn't exist anymore (the host(s) left)</li>
+                    <li>The room ID is wrong</li>
+                    <li>A bad download bandwidth from you</li>
+                    <li>A bad upload bandwidth from the room host(s)</li>
+                    <li>You are too far away from the room host(s)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-info" (click)="understood()">Understood</button>
+</div>

@@ -11,6 +11,9 @@ import { SelectFilesModalComponent } from './components/select-files-modal/selec
 import { SocialComponent } from './components/social/social.component';
 import { UserSettingsModalComponent } from './components/user-settings-modal/user-settings-modal.component';
 import { ColorPickerComponent } from './components/color-picker/color-picker.component';
+import { BytesPipe } from './pipes/bytes.pipe';
+import { DurationPipe } from './pipes/duration.pipe';
+import { CinemaErrorModalComponent } from './components/cinema-error-modal/cinema-error-modal.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +23,10 @@ import { ColorPickerComponent } from './components/color-picker/color-picker.com
     SocialComponent,
     SelectFilesModalComponent,
     UserSettingsModalComponent,
-    ColorPickerComponent
+    ColorPickerComponent,
+    BytesPipe,
+    DurationPipe,
+    CinemaErrorModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -30,6 +36,10 @@ import { ColorPickerComponent } from './components/color-picker/color-picker.com
   ],
   providers: [],
   bootstrap: [AppComponent],
-  entryComponents: [SelectFilesModalComponent, UserSettingsModalComponent]
+  entryComponents: [
+    SelectFilesModalComponent,
+    UserSettingsModalComponent,
+    CinemaErrorModalComponent
+  ]
 })
 export class AppModule { }

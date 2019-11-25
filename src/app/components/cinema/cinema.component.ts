@@ -1,38 +1,55 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WebTorrentService } from 'src/app/services/web-torrent/web-torrent.service';
 import { SyncService } from 'src/app/services/sync/sync.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { UserData } from 'src/app/models/userData';
 import Plyr from 'plyr';
+import { Subscription } from 'rxjs';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CinemaErrorModalComponent } from '../cinema-error-modal/cinema-error-modal.component';
 
 @Component({
   selector: 'app-cinema',
   templateUrl: './cinema.component.html',
   styleUrls: ['./cinema.component.scss']
 })
-export class CinemaComponent implements OnInit, AfterViewInit {
+export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('videoElem', { static: false }) videoElem: ElementRef;
   @ViewChild('subtitlesElem', { static: false }) subtitlesElem: ElementRef;
 
   player: any;
   channelId: string;
-  progress: string;
   info: string;
   error: string;
   isCreator: boolean = false;
   userId: string;
   allowedShift: number = 5;
+  torrentLoading: boolean = true;
+  torrentLoadingTimeoutMs: number = 30000;
+  torrentLoadingTimeout: any;
+  broadcastInterval: any;
+  userDataSubscription: Subscription;
+
+  // Some torrent metadata
+  progress: number = 0;
+  downloaded: number = 0;
+  length: number = 0;
+  timeRemaining: number = 0;
+  downloadSpeed: number = 0;
+  uploadSpeed: number = 0;
+  numPeers: number = 0;
 
   constructor(
     private route: ActivatedRoute,
     private webTorrentService: WebTorrentService,
     private syncService: SyncService,
     private userService: UserService,
+    private modalService: NgbModal,
   ) { }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.channelId = this.route.snapshot.paramMap.get("channelId");
     this.userId = this.userService.getUserId();
     this.isCreator = this.userService.isUserCreator();
@@ -44,8 +61,15 @@ export class CinemaComponent implements OnInit, AfterViewInit {
     }
 
     this.syncService.init(this.channelId);
-    this.syncService.getUserDataObservable().subscribe(this.onUserData.bind(this));
+    this.userDataSubscription = this.syncService.getUserDataObservable().subscribe(this.onUserData.bind(this));
     this.startBroadcasting();
+    this.torrentLoadingTimeout = setTimeout(this.openCinemaErrorModal.bind(this), this.torrentLoadingTimeoutMs);
+  }
+
+  ngOnDestroy(): void {
+    this.stopBroadcasting();
+    this.userDataSubscription.unsubscribe();
+    this.webTorrentService.destroyClient();
   }
 
   ngAfterViewInit() {
@@ -68,7 +92,7 @@ export class CinemaComponent implements OnInit, AfterViewInit {
 
   // Broadcast the current time of the stream
   startBroadcasting() {
-    var interval = setInterval(() => {
+    this.broadcastInterval = setInterval(() => {
 
       let dataToBroadcast = new UserData({
         timestamp: new Date().getTime(),
@@ -83,6 +107,10 @@ export class CinemaComponent implements OnInit, AfterViewInit {
 
       this.syncService.broadcastUserData(dataToBroadcast);
     }, 5000);
+  }
+
+  stopBroadcasting() {
+    clearInterval(this.broadcastInterval);
   }
 
   onUserData(data: UserData) {
@@ -119,6 +147,9 @@ export class CinemaComponent implements OnInit, AfterViewInit {
   }
 
   onTorrent(torrent) {
+    this.torrentLoading = false;
+    clearTimeout(this.torrentLoadingTimeout);
+
     let self = this;
 
     console.log('Got torrent metadata!')
@@ -128,13 +159,18 @@ export class CinemaComponent implements OnInit, AfterViewInit {
       '<a href="' + torrent.torrentFileBlobURL + '" target="_blank" download="' + torrent.name + '.torrent">[Download .torrent]</a>';
 
     // Print out progress every 5 seconds
-    var interval = setInterval(function () {
-      self.progress = (torrent.progress * 100).toFixed(1) + '%';
-    }, 5000)
+    setInterval(function () {
+      self.progress = torrent.progress;
+      self.downloaded = torrent.downloaded;
+      self.length = torrent.length;
+      self.timeRemaining = torrent.timeRemaining;
+      self.downloadSpeed = torrent.downloadSpeed;
+      self.uploadSpeed = torrent.uploadSpeed;
+      self.numPeers = torrent.numPeers;
+    }, 2000);
 
     torrent.on('done', function () {
-      self.progress = '100%'
-      clearInterval(interval);
+      self.progress = 1;
     })
 
     let opts = null;
@@ -182,5 +218,15 @@ export class CinemaComponent implements OnInit, AfterViewInit {
   getVideoCurrentTime(): number {
     if (!this.videoElem) return 0;
     return this.videoElem.nativeElement.currentTime;
+  }
+
+  openCinemaErrorModal() {
+    const modalRef = this.modalService.open(CinemaErrorModalComponent, {
+      backdrop: 'static',
+      keyboard: false,
+    });
+    modalRef.result.then(() => {
+      // Use this ??
+    });
   }
 }

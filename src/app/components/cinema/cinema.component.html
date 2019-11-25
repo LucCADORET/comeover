@@ -13,7 +13,10 @@
                 <ng-template ngbPanelContent>
                     <div [innerHTML]="info"> </div>
                     <!--TODO: show other torrent info: connected peers, seeding/leeching of each of them-->
-                    Progress: {{progress}}
+                    Progress: {{downloaded | bytes}}/{{length | bytes}} ({{progress | percent}})<br>
+                    ETA: {{timeRemaining | duration}}<br>
+                    Download/Upload: {{downloadSpeed | bytes}}/s / {{uploadSpeed | bytes}}/s<br>
+                    Connected peers: {{numPeers}}
                 </ng-template>
             </ngb-panel>
         </ngb-accordion>

@@ -11,9 +11,7 @@ export class WebTorrentService {
   private _filesToSeed: File[];
   private client: any;
 
-  constructor() {
-    this.client = new WebTorrent();
-  }
+  constructor() { }
 
   get magnet(): string {
     return this._magnet;
@@ -28,6 +26,7 @@ export class WebTorrentService {
   }
 
   startTorrent(callback: any) {
+    this.client = new WebTorrent();
     if (this._filesToSeed) {
       // let options = {
       //   name: uuidv4()
@@ -38,6 +37,12 @@ export class WebTorrentService {
       });
     } else if (this._magnet) {
       this.client.add(this._magnet, callback);
+    }
+  }
+
+  destroyClient() {
+    if(this.client) {
+      this.client.destroy();
     }
   }
 }

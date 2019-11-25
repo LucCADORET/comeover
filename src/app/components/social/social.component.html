@@ -9,7 +9,7 @@
                             <li #chatMessageElem *ngFor="let chatMessage of chatMessages" class="user-list-elem">
                                 <span [style.color]="chatMessage.color"
                                     [style.font-weight]="chatMessage.userId == userId ? 'bold': 'normal'">
-                                    {{chatMessage.username}}</span>&nbsp;:&nbsp;<span>{{chatMessage.content}}
+                                    {{chatMessage.username}}</span>:&nbsp;<span>{{chatMessage.content}}
                                 </span>
                             </li>
                         </ul>
