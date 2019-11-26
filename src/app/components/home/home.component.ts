@@ -47,6 +47,8 @@ export class HomeComponent implements OnInit {
     modalRef.result.then(result => {
       this.filesToSeed = result;
       this.createNewChannel();
+    }).catch(err => {
+      // nothing
     });
   }
 }
