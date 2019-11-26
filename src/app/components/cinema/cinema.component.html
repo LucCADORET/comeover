@@ -1,24 +1,26 @@
+<app-loading-overlay [showLoading]="torrentLoading">
 <div class="d-flex flex-row">
-    <video id="player" #videoElem>
-        <track default id="subtitles" #subtitlesElem>
-    </video>
-    <app-social class="d-flex flex-column ml-3"></app-social>
-</div>
-
-<!--Torrent info-->
-<div class="row mt-3">
-    <div class="col">
-        <ngb-accordion #acc="ngbAccordion">
-            <ngb-panel title="Torrent info">
-                <ng-template ngbPanelContent>
-                    <div [innerHTML]="info"> </div>
-                    <!--TODO: show other torrent info: connected peers, seeding/leeching of each of them-->
-                    Progress: {{downloaded | bytes}}/{{length | bytes}} ({{progress | percent}})<br>
-                    ETA: {{timeRemaining | duration}}<br>
-                    Download/Upload: {{downloadSpeed | bytes}}/s / {{uploadSpeed | bytes}}/s<br>
-                    Connected peers: {{numPeers}}
-                </ng-template>
-            </ngb-panel>
-        </ngb-accordion>
+        <video id="player" #videoElem>
+            <track default id="subtitles" #subtitlesElem>
+        </video>
+        <app-social class="d-flex flex-column ml-3"></app-social>
     </div>
-</div>
+    
+    <!--Torrent info-->
+    <div class="row mt-3">
+        <div class="col">
+            <ngb-accordion #acc="ngbAccordion">
+                <ngb-panel title="Torrent info">
+                    <ng-template ngbPanelContent>
+                        <div [innerHTML]="info"> </div>
+                        <!--TODO: show other torrent info: connected peers, seeding/leeching of each of them-->
+                        Progress: {{downloaded | bytes}}/{{length | bytes}} ({{progress | percent}})<br>
+                        ETA: {{timeRemaining | duration}}<br>
+                        Download/Upload: {{downloadSpeed | bytes}}/s / {{uploadSpeed | bytes}}/s<br>
+                        Connected peers: {{numPeers}}
+                    </ng-template>
+                </ngb-panel>
+            </ngb-accordion>
+        </div>
+    </div>
+</app-loading-overlay>

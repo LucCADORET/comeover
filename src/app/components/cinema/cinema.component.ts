@@ -68,8 +68,13 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.stopBroadcasting();
+    this.clearLoadingTimeout();
     this.userDataSubscription.unsubscribe();
     this.webTorrentService.destroyClient();
+  }
+
+  clearLoadingTimeout() {
+    clearTimeout(this.torrentLoadingTimeout);
   }
 
   ngAfterViewInit() {
@@ -148,7 +153,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onTorrent(torrent) {
     this.torrentLoading = false;
-    clearTimeout(this.torrentLoadingTimeout);
+    this.clearLoadingTimeout();
 
     let self = this;
 

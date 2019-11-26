@@ -1,0 +1,16 @@
+<div class="wrapper">
+    <div class="overlay" *ngIf="showLoading">
+        <div class="spinner-wrapper d-flex flex-column">
+            <div>
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div class="mt-3">
+                <h1>Loading the stream data...</h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="loaded-content" [class.blurred]="showLoading">
+        <ng-content></ng-content>
+    </div>
+</div>

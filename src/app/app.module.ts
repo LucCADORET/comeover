@@ -14,6 +14,7 @@ import { ColorPickerComponent } from './components/color-picker/color-picker.com
 import { BytesPipe } from './pipes/bytes.pipe';
 import { DurationPipe } from './pipes/duration.pipe';
 import { CinemaErrorModalComponent } from './components/cinema-error-modal/cinema-error-modal.component';
+import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { CinemaErrorModalComponent } from './components/cinema-error-modal/cinem
     BytesPipe,
     DurationPipe,
     CinemaErrorModalComponent,
+    LoadingOverlayComponent,
   ],
   imports: [
     BrowserModule,
