@@ -15,6 +15,8 @@ import { BytesPipe } from './pipes/bytes.pipe';
 import { DurationPipe } from './pipes/duration.pipe';
 import { CinemaErrorModalComponent } from './components/cinema-error-modal/cinema-error-modal.component';
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
+import { FaqComponent } from './components/faq/faq.component';
+import { DonateComponent } from './components/donate/donate.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +31,8 @@ import { LoadingOverlayComponent } from './components/loading-overlay/loading-ov
     DurationPipe,
     CinemaErrorModalComponent,
     LoadingOverlayComponent,
+    FaqComponent,
+    DonateComponent,
   ],
   imports: [
     BrowserModule,

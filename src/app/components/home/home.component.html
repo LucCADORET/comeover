@@ -1,24 +1,32 @@
-<div>
-    <div class="row mt-5">
+<div class="d-flex flex-column justify-content-center h-100">
+    <div>
         <div class="col">
-            <div class="row mt">
+            <div class="row d-flex justify-content-center">
+                <h2>Stream videos to anyone, anytime, unlimitedly, for free</h2>
+            </div>
+        </div>
+    </div>
+    <div class="mt-5">
+        <div class="col">
+            <div class="row">
                 <div class="col d-flex justify-content-center">
                     <button class="btn btn-primary btn-lg" (click)="openSelectFilesModal()">Create new stream</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row mt-5">
-        <div class="col text-center">
-            Or
+    <div class="mt-5">
+        <div class="col text-center or-word">
+            <h3>Or</h3>
         </div>
     </div>
-    <div class="row mt-5">
+    <div class="my-5">
         <div class="col d-flex justify-content-center">
             <div class="form-inline">
                 <div class="form-group row">
                     <div class="col-auto">
-                        <input type="text" class="form-control form-control-lg" placeholder="Stream id" [(ngModel)]="channelId">
+                        <input type="text" class="form-control form-control-lg" placeholder="Stream id"
+                            [(ngModel)]="channelId">
                     </div>
                     <div class="col-auto">
                         <button class="btn btn-primary btn-lg" (click)="joinChannel()">Join existing stream</button>
