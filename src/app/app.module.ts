@@ -17,6 +17,9 @@ import { CinemaErrorModalComponent } from './components/cinema-error-modal/cinem
 import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
 import { FaqComponent } from './components/faq/faq.component';
 import { DonateComponent } from './components/donate/donate.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CopyClipboardDirective } from './directives/copy-clipboard.directive';
+import { ToastsContainerComponent } from './components/toasts-container/toasts-container.component';
 
 @NgModule({
   declarations: [
@@ -33,12 +36,15 @@ import { DonateComponent } from './components/donate/donate.component';
     LoadingOverlayComponent,
     FaqComponent,
     DonateComponent,
+    CopyClipboardDirective,
+    ToastsContainerComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    NgbModule
+    NgbModule,
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

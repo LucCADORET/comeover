@@ -8,6 +8,8 @@ import Plyr from 'plyr';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CinemaErrorModalComponent } from '../cinema-error-modal/cinema-error-modal.component';
+import { Location } from '@angular/common';
+import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
   selector: 'app-cinema',
@@ -21,6 +23,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 
   player: any;
   channelId: string;
+  shareURL: string;
   info: string;
   error: string;
   isCreator: boolean = false;
@@ -47,10 +50,12 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     private syncService: SyncService,
     private userService: UserService,
     private modalService: NgbModal,
+    private toastService: ToastService,
   ) { }
 
   ngOnInit() {
     this.channelId = this.route.snapshot.paramMap.get("channelId");
+    this.shareURL = location.href;
     this.userId = this.userService.getUserId();
     this.isCreator = this.userService.isUserCreator();
 
@@ -233,5 +238,9 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     modalRef.result.then(() => {
       // Use this ??
     });
+  }
+
+  notifyShareURLCopied(payload: string) {
+    this.toastService.show('URL copied to clipboard', { delay: 1000 });
   }
 }

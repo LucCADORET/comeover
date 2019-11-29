@@ -1,11 +1,32 @@
 <app-loading-overlay [showLoading]="torrentLoading">
-<div class="d-flex flex-row">
+    <div class="d-flex flex-row mt-3">
         <video id="player" #videoElem>
             <track default id="subtitles" #subtitlesElem>
         </video>
         <app-social class="d-flex flex-column ml-3"></app-social>
     </div>
-    
+
+    <div class="row mt-3">
+        <div class="col">
+            <div class="form-inline">
+                <div class="form-group row">
+                    <div class="col-auto">
+                        <label><small>Stream URL</small></label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="text" class="form-control form-control-sm" [value]="shareURL" readonly>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-link btn-sm" [copy-clipboard]="shareURL"
+                            (copied)="notifyShareURLCopied($event)">
+                            <i class="fas fa-copy"></i>&nbsp;Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!--Torrent info-->
     <div class="row mt-3">
         <div class="col">
@@ -24,3 +45,5 @@
         </div>
     </div>
 </app-loading-overlay>
+
+<app-toasts-container aria-live="polite" aria-atomic="true"></app-toasts-container>

@@ -16,3 +16,13 @@ app-social {
 #player {
   height: 65vh;
 }
+
+app-toasts-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: 300px;
+  margin: auto auto;
+  bottom: 10px;
+  text-align: center;
+}

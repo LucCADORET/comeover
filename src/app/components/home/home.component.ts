@@ -5,6 +5,7 @@ import { UserService } from 'src/app/services/user/user.service';
 import { WebTorrentService } from 'src/app/services/web-torrent/web-torrent.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectFilesModalComponent } from '../select-files-modal/select-files-modal.component';
+import { FormControl, PatternValidator, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
@@ -14,8 +15,9 @@ import { SelectFilesModalComponent } from '../select-files-modal/select-files-mo
 export class HomeComponent implements OnInit {
 
   channelId: string = "";
-  magnet: string = "magnet:?xt=urn:btih:08ada5a7a6183aae1e09d831df6748d566095a10&dn=Sintel&tr=udp%3A%2F%2Fexplodie.org%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.empire-js.us%3A1337&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337&tr=wss%3A%2F%2Ftracker.btorrent.xyz&tr=wss%3A%2F%2Ftracker.fastcast.nz&tr=wss%3A%2F%2Ftracker.openwebtorrent.com&ws=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2F&xs=https%3A%2F%2Fwebtorrent.io%2Ftorrents%2Fsintel.torrent";
+  magnet: string = "";
   filesToSeed: File[] = null;
+  channelIdInput = new FormControl('', Validators.pattern(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i));
 
   constructor(
     private router: Router,
@@ -36,6 +38,15 @@ export class HomeComponent implements OnInit {
       this.webTorrentService.magnet = this.magnet;
     }
     this.joinChannel();
+  }
+
+  submitChannelId() {
+    if (this.channelIdInput.valid && this.channelIdInput.value) {
+      this.channelId = this.channelIdInput.value;
+      this.joinChannel();
+    } else {
+      this.channelIdInput.setErrors({ 'incorrect': true });
+    }
   }
 
   joinChannel() {

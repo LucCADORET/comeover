@@ -26,13 +26,19 @@
                 <div class="form-group row">
                     <div class="col-auto">
                         <input type="text" class="form-control form-control-lg" placeholder="Stream id"
-                            [(ngModel)]="channelId">
+                            [formControl]="channelIdInput">
                     </div>
                     <div class="col-auto">
-                        <button class="btn btn-primary btn-lg" (click)="joinChannel()">Join existing stream</button>
+                        <button class="btn btn-primary btn-lg" (click)="submitChannelId()">Join existing stream</button>
                     </div>
+
                 </div>
             </div>
         </div>
+    </div>
+    <div class="d-flex justify-content-center">
+        <small *ngIf="!channelIdInput.valid" class="text-danger">Enter a valid channel Id<br>
+            e.g.: 59ea5ada-7a14-4599-af91-5b1359f0f984
+        </small>
     </div>
 </div>
