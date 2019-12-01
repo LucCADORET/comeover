@@ -36,45 +36,55 @@ export class SelectFilesModalComponent implements OnInit {
 
         worker.onmessage = function (e) {
           var msg = e.data;
-          switch (msg.type) {
-            case "ready":
+          if (msg) {
+            switch (msg.type) {
+              case "ready":
 
-              // Add file to MEMFS
-              var reader = new FileReader();
+                // Add file to MEMFS
+                var reader = new FileReader();
 
-              reader.addEventListener("loadend", function () {
-                let buffer = reader.result as ArrayBuffer;
-                var mkvUint8Array = new Uint8Array(buffer);
-
-
-                // Encode test video to VP8.
-                worker.postMessage({
-                  type: "command",
-                  file: {
-                    data: mkvUint8Array,
-                    name: mkvName,
-                  }
+                reader.addEventListener("error", function (error) {
+                  console.error(error);
                 });
-              });
 
-              reader.readAsArrayBuffer(self.videoFile);
-              break;
-            case "stdout":
-              console.log(msg.data + "\n");
-              break;
-            case "stderr":
-              console.log(msg.data + "\n");
-              break;
-            case "error":
-              console.log(msg.data + "\n");
-              break;
-            case "done":
-              resolve(new File([msg.data as Uint8Array], mp4Name, { type: 'video/mp4' }));
-              break;
-            case "exit":
-              console.log("Process exited with code " + msg.data);
-              worker.terminate();
-              break;
+                reader.addEventListener("abort", function (error) {
+                  console.error(error);
+                });
+
+                reader.addEventListener("loadend", function (data) {
+                  let mkvBuffer = reader.result as ArrayBuffer;
+
+                  let commandData = {
+                    type: "command",
+                    file: {
+                      data: mkvBuffer,
+                      name: mkvName,
+                    }
+                  };
+
+                  // Encode test video to VP8.
+                  worker.postMessage(commandData, [commandData.file.data]);
+                });
+
+                reader.readAsArrayBuffer(self.videoFile);
+                break;
+              case "stdout":
+                console.log(msg.data + "\n");
+                break;
+              case "stderr":
+                console.log(msg.data + "\n");
+                break;
+              case "error":
+                console.log(msg.data + "\n");
+                break;
+              case "done":
+                resolve(new File([msg.data], mp4Name, { type: 'video/mp4' }));
+                break;
+              case "exit":
+                console.log("Process exited with code " + msg.data);
+                worker.terminate();
+                break;
+            }
           }
         };
       } else {

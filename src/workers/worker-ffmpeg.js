@@ -39,14 +39,14 @@ let getFFmpeg = () => {
 };
 let defaultArgs = [
     './ffmpeg',       // args[0] is always binary path
-    // '-nostdin',       // Disable interaction mode
+    '-nostdin',       // Disable interaction mode
     // '-loglevel',
     // 'quiet',
 ]
 
 let transcode = (file) => {
     const Module = getModule();
-    const data = file.data; // Should be an Uint8Array
+    const data = new Uint8Array(file.data); // Should be an Uint8Array
     const iPath = `file.${file.name.split('.').pop()}`;
     const oPath = `file.mp4`;
     const ffmpeg = getFFmpeg();
@@ -94,11 +94,13 @@ onmessage = function (event) {
             'data': 'Finished processing (took ' + totalTime + 'ms)'
         });
 
-        postMessage({
+
+        let resultData = {
             'type': 'done',
-            'data': result,
+            'data': result.buffer,
             'time': totalTime
-        });
+        };
+        postMessage(resultData, [resultData['data']]);
     }
 };
 
