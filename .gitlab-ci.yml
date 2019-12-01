@@ -1,0 +1,26 @@
+image: node:latest
+
+stages:
+  - deploy
+  
+staging:
+  stage: deploy
+  image: ruby:latest
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=comeover-client-staging --api-key=$HEROKU_API_KEY
+  only:
+    - master
+
+production:
+  stage: deploy
+  image: ruby:latest
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=comeover-client --api-key=$HEROKU_API_KEY
+  only:
+    - tags
