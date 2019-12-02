@@ -8,6 +8,7 @@
   flex-direction: column;
   flex-grow: 1;
   height: 100%;
+  overflow: hidden;
 }
 
 // Override default bootstrap styles
@@ -30,6 +31,14 @@
   font-size: 0.875rem;
 }
 
-.message-list {
-    overflow: auto;
+.chat-tab-wrapper {
+  overflow-y: hidden;
+
+  .message-list-wrapper {
+    overflow-y: hidden;
+
+    .message-list {
+      overflow: auto;
+    }
+  }
 }

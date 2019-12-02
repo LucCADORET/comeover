@@ -1,11 +1,11 @@
-<div class="flex-grow-1 d-flex flex-column h-100">
+<div class="flex-grow-1 d-flex flex-column h-100 chat-tab-wrapper">
     <ngb-tabset activeId="ngb-tab-0" class="flex-grow-1 d-flex flex-column h-100">
         <ngb-tab>
             <ng-template ngbTabTitle>Chat</ng-template>
             <ng-template ngbTabContent>
-                <div class="social-tab-content flex-grow-1 d-flex flex-column p-3 h-100">
-                    <div class="flex-grow-1 h-100">
-                        <ul class="px-0 h-100 message-list">
+                <div class="social-tab-content flex-grow-1 d-flex flex-column h-100">
+                    <div class="flex-grow-1 h-100 mt-2 mx-2 message-list-wrapper">
+                        <ul class="px-0 mb-0 h-100 message-list">
                             <li #chatMessageElem *ngFor="let chatMessage of chatMessages" class="user-list-elem">
                                 <span [style.color]="chatMessage.color"
                                     [style.font-weight]="chatMessage.userId == userId ? 'bold': 'normal'">
@@ -14,8 +14,8 @@
                             </li>
                         </ul>
                     </div>
-                    <div>
-                        <input class="form-control form-control-sm mt-2" type="text" [(ngModel)]="message"
+                    <div class="m-2">
+                        <input class="form-control form-control-sm" type="text" [(ngModel)]="message"
                             (keydown.enter)="sendChatMessage()">
                     </div>
                 </div>
@@ -25,7 +25,7 @@
             <ng-template ngbTabTitle>Users</ng-template>
             <ng-template ngbTabContent>
                 <div class="social-tab-content">
-                    <ul class="py-3 px-3">
+                    <ul class="py-2 px-2">
                         <li *ngFor="let user of connectedUsers" class="user-list-elem">
                             <span [style.color]="user.color"
                                 [style.font-weight]="user.userId == userId ? 'bold': 'normal'">
