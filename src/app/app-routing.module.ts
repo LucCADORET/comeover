@@ -4,13 +4,13 @@ import { HomeComponent } from './components/home/home.component';
 import { CinemaComponent } from './components/cinema/cinema.component';
 import { FaqComponent } from './components/faq/faq.component';
 import { DonateComponent } from './components/donate/donate.component';
-
+import { CanDeactivateGuard } from './guards/can-deactivate.guard';
 
 const routes: Routes = [
     { path: 'home', component: HomeComponent },
     { path: 'faq', component: FaqComponent },
     { path: 'donate', component: DonateComponent },
-    { path: 'cinema/:channelId', component: CinemaComponent },
+    { path: 'cinema/:channelId', component: CinemaComponent, canDeactivate: [CanDeactivateGuard] },
 
     // Default redirection
     { path: '**', redirectTo: 'home' }

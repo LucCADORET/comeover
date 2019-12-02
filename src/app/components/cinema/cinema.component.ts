@@ -8,7 +8,6 @@ import Plyr from 'plyr';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CinemaErrorModalComponent } from '../cinema-error-modal/cinema-error-modal.component';
-import { Location } from '@angular/common';
 import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
@@ -44,6 +43,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
   uploadSpeed: number = 0;
   numPeers: number = 0;
 
+
   constructor(
     private route: ActivatedRoute,
     private webTorrentService: WebTorrentService,
@@ -51,7 +51,9 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     private userService: UserService,
     private modalService: NgbModal,
     private toastService: ToastService,
-  ) { }
+  ) {
+
+  }
 
   ngOnInit() {
     this.channelId = this.route.snapshot.paramMap.get("channelId");
@@ -63,6 +65,19 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     // The others will wait on messages to get their version of the torrent 
     if (this.isCreator) {
       this.startTorrent();
+
+      // Show warning message to ask the creator if he is sure to shut down the stream. Note: string will probably be not shown.
+      window.onbeforeunload = function (e) {
+        var e = e || window.event;
+
+        // For IE and Firefox
+        if (e) {
+          e.returnValue = 'Are you sure you want to exit the room ? You are the creator of the room, it will stop the file seeding, and the synchronization between the viewers.';
+        }
+
+        // For Safari
+        return 'Are you sure you want to exit the room ? You are the creator of the room, it will stop the file seeding, and the synchronization between the viewers.';
+      };
     }
 
     this.syncService.init(this.channelId);
@@ -76,6 +91,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     this.clearLoadingTimeout();
     this.userDataSubscription.unsubscribe();
     this.webTorrentService.destroyClient();
+    window.onbeforeunload = null;
   }
 
   clearLoadingTimeout() {
