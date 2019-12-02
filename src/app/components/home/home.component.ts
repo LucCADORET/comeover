@@ -54,7 +54,14 @@ export class HomeComponent implements OnInit {
   }
 
   openSelectFilesModal() {
-    const modalRef = this.modalService.open(SelectFilesModalComponent, { size: "lg" });
+    const modalRef = this.modalService.open(
+      SelectFilesModalComponent,
+      {
+        size: "lg",
+        backdrop: "static",
+        keyboard: false
+      }
+    );
     modalRef.result.then(result => {
       this.filesToSeed = result;
       this.createNewChannel();

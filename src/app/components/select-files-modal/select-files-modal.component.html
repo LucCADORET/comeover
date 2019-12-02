@@ -1,6 +1,6 @@
 <div class="modal-header">
     <h4 class="modal-title">Select a file to stream</h4>
-    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()" [disabled]="validateLoading">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
@@ -38,7 +38,8 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Close</button>
+    <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()"
+        [disabled]="validateLoading">Close</button>
     <button type="button" class="btn btn-success" (click)="validate()" [disabled]="!videoFile || validateLoading">
         <i class="fas fa-spinner fa-spin mr-2" *ngIf="validateLoading"></i>Validate
     </button>

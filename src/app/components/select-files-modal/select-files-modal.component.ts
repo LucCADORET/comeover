@@ -44,11 +44,13 @@ export class SelectFilesModalComponent implements OnInit {
                 var reader = new FileReader();
 
                 reader.addEventListener("error", function (error) {
-                  console.error(error);
+                  self.error = "Error converting the file: it might be too big"
+                  self.validateLoading = false;
                 });
 
                 reader.addEventListener("abort", function (error) {
-                  console.error(error);
+                  self.error = "Error converting the file: it might be too big"
+                  self.validateLoading = false;
                 });
 
                 reader.addEventListener("loadend", function (data) {
