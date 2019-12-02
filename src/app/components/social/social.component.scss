@@ -26,19 +26,31 @@
   flex-grow: 1;
 }
 
-.user-list-elem {
-  list-style-type: none;
-  font-size: 0.875rem;
-}
-
-.chat-tab-wrapper {
+.social-tabset-wrapper {
   overflow-y: hidden;
+
+  .user-list-wrapper {
+    overflow-y: hidden;
+
+    .user-list {
+      overflow-y: auto;
+      .user-list-elem {
+        list-style-type: none;
+        font-size: 0.875rem;
+      }
+    }
+  }
 
   .message-list-wrapper {
     overflow-y: hidden;
 
     .message-list {
       overflow: auto;
+      
+      .message-list-elem {
+        list-style-type: none;
+        font-size: 0.875rem;
+      }
     }
   }
 }
