@@ -17,16 +17,10 @@
             <app-color-picker [heading]="'Background'" [color]="color" (event)="setColor($event)"></app-color-picker>
         </div>
     </div>
-    <div class="row" *ngIf="error">
-        <div class="col">
-            <div class="alert alert-danger">{{error}}</div>
-        </div>
-    </div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn btn-outline-dark" (click)="activeModal.dismiss()">Close</button>
-    <button type="button" class="btn btn-success" (click)="validate()"
-        [disabled]="validateLoading || !username || !color">
-        <i class="fas fa-spinner fa-spin mr-2" *ngIf="validateLoading"></i>Validate
+    <button type="button" class="btn btn-success" (click)="validate()" [disabled]="!username || !color">
+        Validate
     </button>
 </div>
