@@ -104,16 +104,27 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     // Determine controls depending on if the user is the creator or not
     if (this.isCreator) {
       opts = {
-        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'fullscreen']
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'fullscreen'],
       }
     } else {
       opts = {
         controls: ['current-time', 'mute', 'volume', 'captions', 'fullscreen'],
         clickToPlay: false,
-        keyboard: { focused: false, global: false }
+        keyboard: { focused: false, global: false },
       }
     }
-    this.player = new Plyr(this.videoElem.nativeElement, opts);
+    let player = new Plyr(this.videoElem.nativeElement, opts);
+    let self = this;
+    player.on('ready', event => {
+      self.player = event.detail.plyr;
+      if (self.isCreator) {
+        self.player.volume = 1;
+        self.player.muted = false;
+      } else {
+        self.player.volume = 1;
+        self.player.muted = true;
+      }
+    });
   }
 
   // Broadcast the current time of the stream
