@@ -83,7 +83,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     this.syncService.init(this.channelId);
     this.userDataSubscription = this.syncService.getUserDataObservable().subscribe(this.onUserData.bind(this));
     this.startBroadcasting();
-    this.torrentLoadingTimeout = setTimeout(this.openCinemaErrorModal.bind(this), this.torrentLoadingTimeoutMs);
+    this.torrentLoadingTimeout = setTimeout(this.onTorrentLoadingTimeout.bind(this), this.torrentLoadingTimeoutMs);
   }
 
   ngOnDestroy(): void {
@@ -246,7 +246,8 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.videoElem.nativeElement.currentTime;
   }
 
-  openCinemaErrorModal() {
+  onTorrentLoadingTimeout() {
+    this.torrentLoading = false;
     const modalRef = this.modalService.open(CinemaErrorModalComponent, {
       backdrop: 'static',
       keyboard: false,

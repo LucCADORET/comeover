@@ -9,9 +9,9 @@
   background-color: rgba(255, 255, 255, 0.5);
   width: 100%;
   height: 100%;
+  text-shadow: 1px 1px 10px black;
+  color: white;
 }
-
-  
 
 .spinner-wrapper {
   display: flex;
@@ -25,7 +25,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-  
   }
 
   i {

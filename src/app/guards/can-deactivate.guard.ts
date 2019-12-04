@@ -11,6 +11,11 @@ export class CanDeactivateGuard implements CanDeactivate<CinemaComponent> {
     component: CinemaComponent,
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+
+    // If nothing was downloaded, allow to exit without message
+    if(component.progress == 0) return true;
+
+    // Otherwise just ask the permission to exit
     let message = "";
     if (component.isCreator) {
       message = 'Are you sure you want to exit the room ? You are the creator of the room, it will stop the file seeding, and the synchronization between the viewers.';
@@ -19,5 +24,4 @@ export class CanDeactivateGuard implements CanDeactivate<CinemaComponent> {
     }
     return confirm(message);
   }
-
 }
