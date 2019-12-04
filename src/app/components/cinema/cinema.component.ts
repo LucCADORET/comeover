@@ -104,11 +104,11 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     // Determine controls depending on if the user is the creator or not
     if (this.isCreator) {
       opts = {
-        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'pip', 'airplay', 'fullscreen']
+        controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'fullscreen']
       }
     } else {
       opts = {
-        controls: ['current-time', 'mute', 'volume', 'captions', 'pip', 'fullscreen'],
+        controls: ['current-time', 'mute', 'volume', 'captions', 'fullscreen'],
         clickToPlay: false,
         keyboard: { focused: false, global: false }
       }
@@ -200,7 +200,8 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     })
 
     let opts = null;
-    if (!this.isCreator) opts = { autoplay: true, muted: true };
+    if (!this.isCreator) opts = { autoplay: true, muted: true, controls: false };
+    else opts = { autoplay: false, muted: false, controls: false };
 
     // Render all files into to the page
     torrent.files.forEach(function (file) {
