@@ -1,12 +1,10 @@
 {
-  "name": "come-over-client",
+  "name": "comeover-client",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
     "start": "node server.js",
-    "build": "node patch.js && ng build --output-path dist",
-    "build-prod": "node patch.js && ng build --output-path dist --configuration=production",
-    "build-staging": "node patch.js && ng build --output-path dist --configuration=staging",
+    "build": "node patch.js && ng build --output-path dist --configuration=${NODE_ENV}",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

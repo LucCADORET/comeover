@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "come-over-client": {
+    "comeover-client": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/come-over-client",
+            "outputPath": "dist/comeover-client",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -71,24 +71,56 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "staging": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.staging.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
+                }
+              ]
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "come-over-client:build"
+            "browserTarget": "comeover-client:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "come-over-client:build:production"
+              "browserTarget": "comeover-client:build:production"
+            },
+            "staging": {
+              "browserTarget": "comeover-client:build:staging"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "come-over-client:build"
+            "browserTarget": "comeover-client:build"
           }
         },
         "test": {
@@ -125,16 +157,16 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "come-over-client:serve"
+            "devServerTarget": "comeover-client:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "come-over-client:serve:production"
+              "devServerTarget": "comeover-client:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "come-over-client"
+  "defaultProject": "comeover-client"
 }
