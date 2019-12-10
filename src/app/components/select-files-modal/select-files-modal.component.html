@@ -15,10 +15,44 @@
                     <label class="custom-file-label"
                         for="customFile">{{videoFile ? videoFile.name : 'Choose file'}}</label>
                 </div><br>
-                <small class="text-warning" *ngIf="mkvWarning"><i
-                        class="fas fa-exclamation-triangle"></i>&nbsp;{{mkvWarning}}</small>
+                <small class="text-success" *ngIf="supportedMessage"><i
+                        class="fas fa-check-circle"></i>&nbsp;{{supportedMessage}}</small>
+                <small class="text-danger" *ngIf="unsupportedMessage"><i
+                        class="fas fa-times-circle"></i>&nbsp;{{unsupportedMessage}}</small>
             </div>
         </div>
+        <!-- <div class="row mb-3">
+            TODO: this will be implemented in the future
+            <div class="col-sm-8 offset-sm-4">
+                <div class="row">
+                    <div class="col">
+                        <input type="checkbox">
+                        Video track 1
+                    </div>
+                    <div class="col">
+                        h264
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input type="checkbox">
+                        Audio track 1
+                    </div>
+                    <div class="col">
+                        AAC (eng)
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input type="checkbox">
+                        Audio track 2
+                    </div>
+                    <div class="col">
+                        AAC (fr)
+                    </div>
+                </div>
+            </div>
+        </div> -->
         <div class="form-group row">
             <label for="colFormLabel" class="col-sm-4 col-form-label">Subtitles (.srt or .vtt)</label>
             <div class="col-sm-8">

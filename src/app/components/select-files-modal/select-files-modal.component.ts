@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import VTTConverter from 'srt-webvtt';
-import { resolve } from 'url';
-import { reject } from 'q';
+import { TranscodingService } from 'src/app/services/transcoding/transcoding.service';
 
 @Component({
   selector: 'app-select-files-modal',
@@ -14,136 +12,53 @@ export class SelectFilesModalComponent implements OnInit {
   videoFile: File;
   subtitlesFile: File;
   error: string;
-  mkvWarning: string;
+  supportedMessage: string;
+  unsupportedMessage: string;
+  analysisLoading: boolean = false;
   validateLoading: boolean = false;
   ffmpegWorker: Worker;
 
-  constructor(public activeModal: NgbActiveModal) { }
+  constructor(public activeModal: NgbActiveModal, private transcodingService: TranscodingService) { }
 
-  ngOnInit() {
-  }
-
-  // If file has mkv format, it will perform a convertion
-  convertVideoFileIfNeeded(file: File): Promise<File> {
-    return new Promise((resolve, reject) => {
-
-      if (this.videoFile.type == 'video/x-matroska') {
-        // Start worker for the convertion
-        var worker = new Worker("workers/worker-ffmpeg.js");
-        let self = this;
-        let mkvName = file.name;
-        let mp4Name = mkvName.replace('.mkv', '.mp4');
-
-        worker.onmessage = function (e) {
-          var msg = e.data;
-          if (msg) {
-            switch (msg.type) {
-              case "ready":
-
-                // Add file to MEMFS
-                var reader = new FileReader();
-
-                reader.addEventListener("error", function (error) {
-                  self.error = "Error converting the file: it might be too big"
-                  self.validateLoading = false;
-                });
-
-                reader.addEventListener("abort", function (error) {
-                  self.error = "Error converting the file: it might be too big"
-                  self.validateLoading = false;
-                });
-
-                reader.addEventListener("loadend", function (data) {
-                  let mkvBuffer = reader.result as ArrayBuffer;
-
-                  let commandData = {
-                    type: "command",
-                    file: {
-                      data: mkvBuffer,
-                      name: mkvName,
-                    }
-                  };
-
-                  // Encode test video to VP8.
-                  worker.postMessage(commandData, [commandData.file.data]);
-                });
-
-                reader.readAsArrayBuffer(self.videoFile);
-                break;
-              case "stdout":
-                console.log(msg.data + "\n");
-                break;
-              case "stderr":
-                console.log(msg.data + "\n");
-                break;
-              case "error":
-                console.log(msg.data + "\n");
-                break;
-              case "done":
-                resolve(new File([msg.data], mp4Name, { type: 'video/mp4' }));
-                break;
-              case "exit":
-                console.log("Process exited with code " + msg.data);
-                worker.terminate();
-                break;
-            }
-          }
-        };
-      } else {
-        resolve(file);
-      }
-    });
-  }
-
-  convertSubtitlesIfNeeded(file: File): Promise<File> {
-    return new Promise((resolve, reject) => {
-      if (this.subtitlesFile.type == 'application/x-subrip') {
-        const vttConverter = new VTTConverter(this.subtitlesFile); // the constructor accepts a parameer of SRT subtitle blob/file object
-        let self = this;
-        vttConverter.getURL()
-          .then(function (url) { // Its a valid url that can be used further
-            fetch(url).then(res => {
-              return res.blob()
-            }).then(blob => {
-              resolve(new File([blob], self.subtitlesFile.name + '.vtt', { type: 'text/vtt' }));
-            });
-          });
-      } else {
-        resolve(file);
-      }
-    });
-  }
+  ngOnInit() { }
 
   validate() {
     this.validateLoading = true;
-    this.convertVideoFileIfNeeded(this.videoFile).then((file: File) => {
+    this.transcodingService.convertVideoFileIfNeeded(this.videoFile).then((file: File) => {
       this.videoFile = file;
       if (this.subtitlesFile) {
-        this.convertSubtitlesIfNeeded(this.subtitlesFile).then((file: File) => {
+        this.transcodingService.convertSubtitlesIfNeeded(this.subtitlesFile).then((file: File) => {
           this.subtitlesFile = file;
           this.activeModal.close([this.videoFile, this.subtitlesFile]);
+        }).catch((err) => {
+          this.error = err;
+          this.validateLoading = false;
         });
       }
       else {
         this.activeModal.close([this.videoFile]);
       }
+    }).catch((err) => {
+      this.error = err;
+      this.validateLoading = false;
     });
   }
 
   handleVideoFileInput(files: FileList) {
     let file = files.item(0);
-    if (file.type != 'video/mp4' && file.type != 'video/x-matroska') {
-      this.error = 'Only mp4 and mkv files are supported';
-      this.mkvWarning = null;
-    } else {
-      this.videoFile = file;
-      this.error = null;
-      if (file.type == 'video/x-matroska') {
-        this.mkvWarning = ".mkv files are not nativelty supported, it might take a few minutes ton convert";
+    this.transcodingService.isFileSupported(file).then((isSupported) => {
+      if (isSupported) {
+        this.videoFile = file;
+        this.unsupportedMessage = null;
+        this.supportedMessage = 'This file is compatible for streaming.';
       } else {
-        this.mkvWarning = null;
+        this.unsupportedMessage = 'The video codecs of that file are not supported. Supported codecs for video are h264, VP8 and VP9, supported codecs for audio are AAC, Vorbis and Opus. Come Over will support transcoding in the future ! But for now, you\'ll have to try with another file.';
+        this.supportedMessage = null
       }
-    }
+    }).catch((err) => {
+      this.unsupportedMessage = 'There was an error processing the file. This sometimes happens when the file is too big. If the issue remains, please contact support.';
+      this.supportedMessage = null
+    });
   }
 
   handleSubtitlesFileInput(files: FileList) {

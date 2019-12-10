@@ -40,9 +40,22 @@ let getFFmpeg = () => {
 let defaultArgs = [
     './ffmpeg',       // args[0] is always binary path
     '-nostdin',       // Disable interaction mode
-    // '-loglevel',
-    // 'quiet',
+    '-loglevel',
+    'info',
 ]
+
+let getCodecs = (file) => {
+    const Module = getModule();
+    const data = new Uint8Array(file.data); // Should be an Uint8Array
+    const iPath = `file.${file.name.split('.').pop()}`;
+    const ffmpeg = getFFmpeg();
+
+    // command line is setting a dummy output so ffmpeg won't throw an error
+    const args = [...defaultArgs, ...` -i ${iPath} -c copy -f null /dev/null`.trim().split(' ')];
+    Module.FS.writeFile(iPath, data);
+    ffmpeg(args.length, strList2ptr(args));
+};
+
 
 let transcode = (file) => {
     const Module = getModule();
@@ -56,28 +69,29 @@ let transcode = (file) => {
     return Uint8Array.from(Module.FS.readFile(oPath));
 };
 
+let logger = (message, type) => {
+    postMessage({
+        'data': message,
+        'type': type,
+    });
+}
+
 // Load FFmpegCore
 let load = new Promise((resolve, reject) => {
     FFmpegCore()
         .then((Module) => {
+            Module.setLogger(logger);
             setModule(Module);
             resolve();
         });
 });
 var now = Date.now;
 
-function print(text) {
-    postMessage({
-        'type': 'stdout',
-        'data': text
-    });
-}
-
 onmessage = function (event) {
 
     var message = event.data;
 
-    if (message.type === "command") {
+    if (message.type === "transcode") {
 
         postMessage({
             'type': 'stdout',
@@ -101,6 +115,19 @@ onmessage = function (event) {
             'time': totalTime
         };
         postMessage(resultData, [resultData['data']]);
+    }
+
+    if (message.type === "codecs") {
+        postMessage({
+            'type': 'stdout',
+            'data': 'Getting codecs of ' + message.file.name
+        });
+
+        getCodecs(message.file);
+        let resultData = {
+            'type': 'done'
+        };
+        postMessage(resultData);
     }
 };
 
