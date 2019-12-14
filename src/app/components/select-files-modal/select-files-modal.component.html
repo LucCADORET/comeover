@@ -7,8 +7,7 @@
 <div class="modal-body">
     <form>
         <div class="form-group row">
-            <label for="colFormLabelSm" class="col-sm-4 col-form-label col-form-label">Video file (.mp4 or .mkv)</label>
-            <div class="col-sm-8">
+            <div class="col">
                 <div class="custom-file">
                     <input type="file" class="custom-file-input" id="customFile"
                         (change)="handleVideoFileInput($event.target.files)">
@@ -21,53 +20,65 @@
                         class="fas fa-times-circle"></i>&nbsp;{{unsupportedMessage}}</small>
             </div>
         </div>
+        <div *ngIf="analysisLoading">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+            </div>
+            <small>Analysing file...</small>
+        </div>
         <div *ngIf="supportedMessage" class="row mb-3">
-            <div class="col-sm-8 offset-sm-4">
+            <div class="col">
                 <button class="btn btn-link" *ngIf="!showAdvancedOptions" (click)="showAdvancedOptions = true">
-                    Show advanced options
+                    Show advanced options&nbsp;<i class="fas fa-angle-right"></i>
                 </button>
                 <button class="btn btn-link" *ngIf="showAdvancedOptions" (click)="showAdvancedOptions = false">
-                    Hide advanced options
+                    Hide advanced options&nbsp;<i class="fas fa-angle-down"></i>
                 </button>
-                <div *ngIf="showAdvancedOptions">
+                <form *ngIf="showAdvancedOptions" [formGroup]="optionsForm">
                     <div class="form-group">
                         <label for="selectVideoStream">Video</label>
-                        <select class="form-control" id="selectVideoStream">
-                            <option [ngValue]="option" *ngFor="let option of videoStreamOptions">
-                                Video Stream #{{option.videoStream.index}}: {{option.videoStream.codec}}
+                        <select class="form-control" id="selectVideoStream" formControlName="videoStreamControl">
+                            <option [ngValue]="videoStream" *ngFor="let videoStream of videoStreams">
+                                Video Stream #{{videoStream.index}}: {{videoStream.codec}}
                             </option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="selectAudioStream">Audio</label>
-                        <select class="form-control" id="selectAudioStream">
-                            <option [ngValue]="option" *ngFor="let option of audioStreamOptions">
-                                Audio Stream #{{option.audioStream.index}} {{option.audioStream.language}}:
-                                {{option.audioStream.codec}}
+                        <select class="form-control" id="selectAudioStream" formControlName="audioStreamControl">
+                            <option [ngValue]="audioStream" *ngFor="let audioStream of audioStreams">
+                                Audio Stream #{{audioStream.index}} {{audioStream.language}}:
+                                {{audioStream.codec}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group" *ngIf="subtitleStreams && subtitleStreams.length">
+                        <label for="selectSubtitleStream">Subtitle</label>
+                        <select class="form-control" id="selectSubtitleStream" formControlName="subtitleStreamControl">
+                            <option [ngValue]="subtitleStream" *ngFor="let subtitleStream of subtitleStreams">
+                                Subtitle Stream #{{subtitleStream.index}} {{subtitleStream.language}}:
+                                {{subtitleStream.type}}
                             </option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="selectAudioStream">Subtitle</label>
-                        <select class="form-control" id="selectSubtitleStream">
-                            <option [ngValue]="option" *ngFor="let option of subtitleStreamOptions">
-                                Subtitle Stream #{{option.subtitleStream.index}} {{option.subtitleStream.language}}:
-                                {{option.subtitleStream.type}}
-                            </option>
-                        </select>
+                        <label for="customSubtitleFile" *ngIf="subtitleStreams && subtitleStreams.length">
+                            Or use custom subtitle file
+                        </label>
+                        <label for="customSubtitleFile" *ngIf="!(subtitleStreams && subtitleStreams.length)">Custom
+                            subtitle
+                            file
+                        </label>
+                        <div class="custom-file" id="customSubtitleFile">
+                            <input type="file" class="custom-file-input" id="customFile"
+                                (change)="handleSubtitlesFileInput($event.target.files)"
+                                formControlName="subtitleFileControl">
+                            <label class="custom-file-label"
+                                for="customFile">{{subtitlesFile ? subtitlesFile.name : 'Choose file'}}</label>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="colFormLabel" class="col-sm-4 col-form-label">Subtitles (.srt or .vtt)</label>
-            <div class="col-sm-8">
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input" id="customFile"
-                        (change)="handleSubtitlesFileInput($event.target.files)">
-                    <label class="custom-file-label"
-                        for="customFile">{{subtitlesFile ? subtitlesFile.name : 'Choose file'}}</label>
-                </div>
+                </form>
             </div>
         </div>
     </form>

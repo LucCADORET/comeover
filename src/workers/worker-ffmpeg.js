@@ -56,14 +56,25 @@ let getCodecs = (file) => {
     ffmpeg(args.length, strList2ptr(args));
 };
 
-
-let transcode = (file) => {
+let extractSubtitles = (file, index) => {
     const Module = getModule();
     const data = new Uint8Array(file.data); // Should be an Uint8Array
     const iPath = `file.${file.name.split('.').pop()}`;
-    const oPath = `file.mp4`;
+    const oPath = `subtitles.vtt`;
     const ffmpeg = getFFmpeg();
-    const args = [...defaultArgs, ...` -i ${iPath} -c copy ${oPath}`.trim().split(' ')];
+    const args = [...defaultArgs, ...` -i ${iPath} -map 0:${index} ${oPath}`.trim().split(' ')];
+    Module.FS.writeFile(iPath, data);
+    ffmpeg(args.length, strList2ptr(args));
+    return Uint8Array.from(Module.FS.readFile(oPath));
+}
+
+let transcode = (file, videoStreamIndex, audioStreamIndex, outputExtension) => {
+    const Module = getModule();
+    const data = new Uint8Array(file.data); // Should be an Uint8Array
+    const iPath = `file.${file.name.split('.').pop()}`;
+    const oPath = `file.${outputExtension}`;
+    const ffmpeg = getFFmpeg();
+    const args = [...defaultArgs, ...` -i ${iPath} -c copy -map 0:${videoStreamIndex} -map 0:${audioStreamIndex} ${oPath}`.trim().split(' ')];
     Module.FS.writeFile(iPath, data);
     ffmpeg(args.length, strList2ptr(args));
     return Uint8Array.from(Module.FS.readFile(oPath));
@@ -100,7 +111,7 @@ onmessage = function (event) {
 
         var time = now();
 
-        const result = transcode(message.file);
+        const result = transcode(message.file, message.videoStreamIndex, message.audioStreamIndex, message.outputExtension);
 
         var totalTime = now() - time;
         postMessage({
@@ -128,6 +139,19 @@ onmessage = function (event) {
             'type': 'done'
         };
         postMessage(resultData);
+    }
+
+    if (message.type === "subtitles") {
+        postMessage({
+            'type': 'stdout',
+            'data': 'Building .srt file from ' + message.file.name
+        });
+        const result = extractSubtitles(message.file, message.index);
+        let resultData = {
+            'type': 'done',
+            'data': result.buffer,
+        };
+        postMessage(resultData, [resultData['data']]);
     }
 };
 

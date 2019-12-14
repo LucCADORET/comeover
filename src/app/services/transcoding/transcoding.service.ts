@@ -40,70 +40,73 @@ export class TranscodingService {
   }
 
   // If file has mkv format, it will perform a convertion
-  convertVideoFileIfNeeded(file: File): Promise<File> {
+  convertVideoFile(file: File, videoStream: VideoStream, audioStream: AudioStream): Promise<File> {
     return new Promise((resolve, reject) => {
 
-      if (file.type == 'video/x-matroska') {
-        // Start worker for the convertion
-        var worker = new Worker("workers/worker-ffmpeg.js");
-        let self = this;
-        let mkvName = file.name;
-        let mp4Name = mkvName.replace('.mkv', '.mp4');
-
-        worker.onmessage = function (e) {
-          var msg = e.data;
-          if (msg) {
-            switch (msg.type) {
-              case "ready":
-
-                // Add file to MEMFS
-                var reader = new FileReader();
-
-                reader.addEventListener("error", function (error) {
-                  reject("Error converting the file: it might be too big");
-                });
-
-                reader.addEventListener("abort", function (error) {
-                  reject("Error converting the file: it might be too big");
-                });
-
-                reader.addEventListener("loadend", function (data) {
-                  let mkvBuffer = reader.result as ArrayBuffer;
-
-                  let commandData = {
-                    type: "transcode",
-                    file: {
-                      data: mkvBuffer,
-                      name: mkvName,
-                    }
-                  };
-                  worker.postMessage(commandData, [commandData.file.data]);
-                });
-
-                reader.readAsArrayBuffer(file);
-                break;
-              case "stdout":
-                console.log(msg.data + "\n");
-                break;
-              case "stderr":
-                console.log(msg.data + "\n");
-                break;
-              case "error":
-                console.log(msg.data + "\n");
-                break;
-              case "done":
-                resolve(new File([msg.data], mp4Name, { type: 'video/mp4' }));
-                break;
-              case "exit":
-                console.log("Process exited with code " + msg.data);
-                worker.terminate();
-                break;
-            }
-          }
-        };
-      } else {
-        resolve(file);
+      // Start worker for the convertion
+      var worker = new Worker("workers/worker-ffmpeg.js");
+      let self = this;
+      let inputName = file.name;
+      let outputExtension = this.getOutputFormat(videoStream, audioStream);
+      if (!outputExtension) {
+        reject("Could not find any suitable file format from the provided codecs");
       }
+      let outputName = inputName.split('.').pop() + outputExtension;
+
+      worker.onmessage = function (e) {
+        var msg = e.data;
+        if (msg) {
+          switch (msg.type) {
+            case "ready":
+
+              // Add file to MEMFS
+              var reader = new FileReader();
+
+              reader.addEventListener("error", function (error) {
+                reject("Error converting the file: it might be too big");
+              });
+
+              reader.addEventListener("abort", function (error) {
+                reject("Error converting the file: it might be too big");
+              });
+
+              reader.addEventListener("loadend", function (data) {
+                let inputBuffer = reader.result as ArrayBuffer;
+
+                let commandData = {
+                  type: "transcode",
+                  file: {
+                    data: inputBuffer,
+                    name: inputName,
+                  },
+                  videoStreamIndex: videoStream.index,
+                  audioStreamIndex: audioStream.index,
+                  outputExtension: outputExtension,
+                };
+                worker.postMessage(commandData, [commandData.file.data]);
+              });
+
+              reader.readAsArrayBuffer(file);
+              break;
+            case "stdout":
+              console.log(msg.data + "\n");
+              break;
+            case "stderr":
+              console.log(msg.data + "\n");
+              break;
+            case "error":
+              console.log(msg.data + "\n");
+              break;
+            case "done":
+              resolve(new File([msg.data], outputName, { type: outputExtension == 'mp4' ? 'video/mp4' : 'video/webm' }));
+              break;
+            case "exit":
+              console.log("Process exited with code " + msg.data);
+              worker.terminate();
+              break;
+          }
+        }
+      };
     });
   }
 
@@ -126,6 +129,69 @@ export class TranscodingService {
     });
   }
 
+  extractSubtitleFile(file: File, subtitleStream: SubtitleStream): Promise<File> {
+    return new Promise((resolve, reject) => {
+
+      // Start worker for the convertion
+      var worker = new Worker("workers/worker-ffmpeg.js");
+      let fileName = file.name;
+
+      worker.onmessage = function (e) {
+        var msg = e.data;
+        if (msg) {
+          switch (msg.type) {
+            case "ready":
+
+              // Add file to MEMFS
+              var reader = new FileReader();
+
+              reader.addEventListener("error", function (error) {
+                reject("Error converting the file: it might be too big");
+              });
+
+              reader.addEventListener("abort", function (error) {
+                reject("Error converting the file: it might be too big");
+              });
+
+              reader.addEventListener("loadend", function (data) {
+                let mkvBuffer = reader.result as ArrayBuffer;
+
+                let commandData = {
+                  type: "subtitles",
+                  file: {
+                    data: mkvBuffer,
+                    name: fileName,
+                  },
+                  index: subtitleStream.index
+                };
+                worker.postMessage(commandData, [commandData.file.data]);
+              });
+
+              reader.readAsArrayBuffer(file);
+              break;
+            case "stdout":
+              console.log(msg.data + "\n");
+              break;
+            case "stderr":
+              console.log(msg.data + "\n");
+              break;
+            case "error":
+              console.log(msg.data + "\n");
+              break;
+            case "done":
+              let subtitleFile = new File([msg.data], fileName + '.vtt', { type: 'text/vtt' });
+              resolve(subtitleFile);
+              break;
+            case "exit":
+              console.log("Process exited with code " + msg.data);
+              worker.terminate();
+              break;
+          }
+        }
+      };
+    });
+  }
+
   // Uses ffmpeg to check if the video codecs of the file are supported
   loadAnalyzeFile(file: File): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
@@ -134,6 +200,7 @@ export class TranscodingService {
       let filename = file.name;
       this._videoStreams = [];
       this._audioStreams = [];
+      this._subtitleStreams = [];
       let isOutputSection = false;
       worker.onmessage = function (e) {
         var msg = e.data;
@@ -246,8 +313,7 @@ export class TranscodingService {
     if (!H264Stream) return false;
 
     let AACStream = audioStreams.find(vs => vs.codec == AudioCodecsEnum.AAC);
-    let EAC3Stream = audioStreams.find(vs => vs.codec == AudioCodecsEnum.EAC3);
-    if (!AACStream && !EAC3Stream) return false;
+    if (!AACStream) return false;
 
     return true;
   }
@@ -263,5 +329,15 @@ export class TranscodingService {
     if (!OpusStream && !VorbisStream) return false;
 
     return true;
+  }
+
+  // Returns the output format that sould be built depending on the codecs
+  getOutputFormat(videoStream: VideoStream, audioStream: AudioStream) {
+    if (this.canBuildWebm([videoStream], [audioStream])) {
+      return 'webm';
+    } else if (this.canBuildMp4([videoStream], [audioStream])) {
+      return 'mp4';
+    }
+    return null;
   }
 }
