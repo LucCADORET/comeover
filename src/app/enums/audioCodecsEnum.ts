@@ -4,5 +4,6 @@ export enum AudioCodecsEnum {
     OPUS = 'Opus',
     VORBIS = 'Vorbis',
     AAC = 'AAC',
+    EAC3 = 'EAC3',
     UNKNOWN = 'Unknown',
 }

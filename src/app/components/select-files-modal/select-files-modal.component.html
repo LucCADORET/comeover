@@ -23,15 +23,15 @@
         </div>
         <div *ngIf="supportedMessage" class="row mb-3">
             <div class="col-sm-8 offset-sm-4">
-                <button class="btn btn-link" *ngIf="!showAdvancedOptions" (click)="showAdvancedOptions = true">Show
-                    advanced options
+                <button class="btn btn-link" *ngIf="!showAdvancedOptions" (click)="showAdvancedOptions = true">
+                    Show advanced options
                 </button>
-                <button class="btn btn-link" *ngIf="showAdvancedOptions" (click)="showAdvancedOptions = false">Hide
-                    advanced options
+                <button class="btn btn-link" *ngIf="showAdvancedOptions" (click)="showAdvancedOptions = false">
+                    Hide advanced options
                 </button>
                 <div *ngIf="showAdvancedOptions">
                     <div class="form-group">
-                        <label for="selectVideoStream">Video Stream</label>
+                        <label for="selectVideoStream">Video</label>
                         <select class="form-control" id="selectVideoStream">
                             <option [ngValue]="option" *ngFor="let option of videoStreamOptions">
                                 Video Stream #{{option.videoStream.index}}: {{option.videoStream.codec}}
@@ -39,11 +39,20 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="selectAudioStream">Audio Stream</label>
+                        <label for="selectAudioStream">Audio</label>
                         <select class="form-control" id="selectAudioStream">
                             <option [ngValue]="option" *ngFor="let option of audioStreamOptions">
-                                Video Stream #{{option.audioStream.index}} {{option.audioStream.language}}:
+                                Audio Stream #{{option.audioStream.index}} {{option.audioStream.language}}:
                                 {{option.audioStream.codec}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectAudioStream">Subtitle</label>
+                        <select class="form-control" id="selectSubtitleStream">
+                            <option [ngValue]="option" *ngFor="let option of subtitleStreamOptions">
+                                Subtitle Stream #{{option.subtitleStream.index}} {{option.subtitleStream.language}}:
+                                {{option.subtitleStream.type}}
                             </option>
                         </select>
                     </div>

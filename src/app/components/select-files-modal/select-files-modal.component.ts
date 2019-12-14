@@ -5,6 +5,7 @@ import { VideoStream } from 'src/app/models/videoStream';
 import { AudioStream } from 'src/app/models/audioStream';
 import { VideoStreamOption } from 'src/app/models/videoStreamOption';
 import { AudioStreamOption } from 'src/app/models/audioStreamOption';
+import { SubtitleStreamOption } from 'src/app/models/subtitleStreamOption';
 
 @Component({
   selector: 'app-select-files-modal',
@@ -24,6 +25,7 @@ export class SelectFilesModalComponent implements OnInit {
   ffmpegWorker: Worker;
   videoStreamOptions: Array<VideoStreamOption> = [];
   audioStreamOptions: Array<AudioStreamOption> = [];
+  subtitleStreamOptions: Array<SubtitleStreamOption> = [];
 
   constructor(public activeModal: NgbActiveModal, private transcodingService: TranscodingService) { }
 
@@ -61,6 +63,7 @@ export class SelectFilesModalComponent implements OnInit {
         this.supportedMessage = 'This file is compatible for streaming.';
         this.videoStreamOptions = this.transcodingService.videoStreams.map(vs => new VideoStreamOption(vs));
         this.audioStreamOptions = this.transcodingService.audioStreams.map(as => new AudioStreamOption(as));
+        this.subtitleStreamOptions = this.transcodingService.subtitleStreams.map(ss => new SubtitleStreamOption(ss));
       } else {
         this.unsupportedMessage = 'The video codecs of that file are not supported. Supported codecs for video are h264, VP8 and VP9, supported codecs for audio are AAC, Vorbis and Opus. Come Over will support transcoding in the future ! But for now, you\'ll have to try with another file.';
         this.supportedMessage = null

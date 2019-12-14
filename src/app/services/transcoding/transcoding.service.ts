@@ -6,6 +6,7 @@ import { VideoStream } from 'src/app/models/videoStream';
 import { AudioStream } from 'src/app/models/audioStream';
 import { VideoCodecsEnum } from 'src/app/enums/videoCodecsEnum';
 import { AudioCodecsEnum } from 'src/app/enums/audioCodecsEnum';
+import { SubtitleStream } from 'src/app/models/subtitleStream';
 
 @Injectable({
   providedIn: 'root'
@@ -20,23 +21,9 @@ export class TranscodingService {
     'WAV',
   ]
 
-  supportedVideoCodecs: Array<string> = [
-    'VP8',
-    'VP9',
-    'H.264',
-    'Theora',
-  ]
-
-  supportedAudioCodecs: Array<string> = [
-    'FLAC',
-    'MP3',
-    'Opus',
-    'Vorbis',
-    'AAC',
-  ]
-
   private _videoStreams: Array<VideoStream> = [];
   private _audioStreams: Array<AudioStream> = [];
+  private _subtitleStreams: Array<SubtitleStream> = [];
 
   constructor() { }
 
@@ -46,6 +33,10 @@ export class TranscodingService {
 
   get audioStreams(): Array<AudioStream> {
     return this._audioStreams;
+  }
+
+  get subtitleStreams(): Array<SubtitleStream> {
+    return this._subtitleStreams;
   }
 
   // If file has mkv format, it will perform a convertion
@@ -185,7 +176,7 @@ export class TranscodingService {
 
               // let regex = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-z0-9\s]+,)*([a-z0-9\s]+){1}/;
               // let v2 = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-zA-Z0-9\s\(\)\/]+),/gmi;
-              let v3 = /^Stream #[0-9]:([0-9])(\([a-z]{3}\))?: (Video|Audio): (.+)/
+              let v3 = /^Stream #[0-9]:([0-9])(\([a-z]{3}\))?: (Video|Audio|Subtitle): (.+)/
               /**
                * Tests:
                * Stream #0:0: Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
@@ -193,6 +184,8 @@ export class TranscodingService {
                Stream #0:0(und): Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
                
                Stream #0:1(eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 127 kb/s (default)
+
+               Stream #0:2(eng): Subtitle: subrip
                */
               let line = msg.data.trim();
 
@@ -219,6 +212,8 @@ export class TranscodingService {
                     self._videoStreams.push(new VideoStream(trackNumberGroup, codecsGroup));
                   } else if (trackTypeGroup == 'Audio') {
                     self._audioStreams.push(new AudioStream(trackNumberGroup, languageGroup, codecsGroup));
+                  } else if (trackTypeGroup == 'Subtitle') {
+                    self._subtitleStreams.push(new SubtitleStream(trackNumberGroup, languageGroup, codecsGroup));
                   }
                 }
                 console.log(line);
@@ -251,7 +246,8 @@ export class TranscodingService {
     if (!H264Stream) return false;
 
     let AACStream = audioStreams.find(vs => vs.codec == AudioCodecsEnum.AAC);
-    if (!AACStream) return false;
+    let EAC3Stream = audioStreams.find(vs => vs.codec == AudioCodecsEnum.EAC3);
+    if (!AACStream && !EAC3Stream) return false;
 
     return true;
   }

@@ -20,6 +20,8 @@ export class AudioStream {
             this.codec = AudioCodecsEnum.VORBIS;
         } else if (firstCodec.toLowerCase().includes('aac')) {
             this.codec = AudioCodecsEnum.AAC;
+        } else if (firstCodec.toLowerCase().includes('eac3')) {
+            this.codec = AudioCodecsEnum.EAC3;
         } else {
             this.codec = AudioCodecsEnum.UNKNOWN;
         }
