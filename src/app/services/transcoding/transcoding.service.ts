@@ -35,7 +35,18 @@ export class TranscodingService {
     'AAC',
   ]
 
+  private _videoStreams: Array<VideoStream> = [];
+  private _audioStreams: Array<AudioStream> = [];
+
   constructor() { }
+
+  get videoStreams(): Array<VideoStream> {
+    return this._videoStreams;
+  }
+
+  get audioStreams(): Array<AudioStream> {
+    return this._audioStreams;
+  }
 
   // If file has mkv format, it will perform a convertion
   convertVideoFileIfNeeded(file: File): Promise<File> {
@@ -125,14 +136,14 @@ export class TranscodingService {
   }
 
   // Uses ffmpeg to check if the video codecs of the file are supported
-  isFileSupported(file: File): Promise<boolean> {
+  loadAnalyzeFile(file: File): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       var worker = new Worker("workers/worker-ffmpeg.js");
       let self = this;
       let filename = file.name;
-      let i = 0;
-      let videoStreams: Array<VideoStream> = [];
-      let audioStreams: Array<AudioStream> = [];
+      this._videoStreams = [];
+      this._audioStreams = [];
+      let isOutputSection = false;
       worker.onmessage = function (e) {
         var msg = e.data;
         if (msg) {
@@ -169,44 +180,56 @@ export class TranscodingService {
               // nothing to do
               break;
             case "stderr":
-              let regex = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-z0-9\s]+,)*([a-z0-9\s]+){1}/;
-              let v2 = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-zA-Z0-9\s\(\)\/]+),/gmi;
+
+
+
+              // let regex = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-z0-9\s]+,)*([a-z0-9\s]+){1}/;
+              // let v2 = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-zA-Z0-9\s\(\)\/]+),/gmi;
               let v3 = /^Stream #[0-9]:([0-9])(\([a-z]{3}\))?: (Video|Audio): (.+)/
               /**
                * Tests:
                * Stream #0:0: Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
- 
-                Stream #0:0(und): Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
- 
-                Stream #0:1(eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 127 kb/s (default)
+               
+               Stream #0:0(und): Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
+               
+               Stream #0:1(eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 127 kb/s (default)
                */
               let line = msg.data.trim();
-              let groups = line.match(v3);
-              if (groups) {
-                let trackNumberGroup = null;
-                let languageGroup = null;
-                let trackTypeGroup = null;
-                let codecsGroup = null;
 
-                // Getting groups depending on how many there was
-                trackNumberGroup = groups[1];
-                languageGroup = groups[2];
-                trackTypeGroup = groups[3];
-                codecsGroup = groups[4];
-
-                if (trackTypeGroup == 'Video') {
-                  videoStreams.push(new VideoStream(trackNumberGroup, codecsGroup));
-                } else if (trackTypeGroup == 'Audio') {
-                  audioStreams.push(new AudioStream(trackNumberGroup, languageGroup, codecsGroup));
-                }
+              // If we get the line 'Output #0' then we know we can stop looking at the data
+              if (line.includes('Output #0')) {
+                isOutputSection = true;
               }
-              console.log(line);
+
+              if (!isOutputSection) {
+                let groups = line.match(v3);
+                if (groups) {
+                  let trackNumberGroup = null;
+                  let languageGroup = null;
+                  let trackTypeGroup = null;
+                  let codecsGroup = null;
+
+                  // Getting groups depending on how many there was
+                  trackNumberGroup = groups[1];
+                  languageGroup = groups[2];
+                  trackTypeGroup = groups[3];
+                  codecsGroup = groups[4];
+
+                  if (trackTypeGroup == 'Video') {
+                    self._videoStreams.push(new VideoStream(trackNumberGroup, codecsGroup));
+                  } else if (trackTypeGroup == 'Audio') {
+                    self._audioStreams.push(new AudioStream(trackNumberGroup, languageGroup, codecsGroup));
+                  }
+                }
+                console.log(line);
+              }
               break;
             case "error":
-              console.error(msg.data + "\n");
+              reject(msg.data + "\n");
               break;
             case "done":
-              resolve(self.canBuildMp4(videoStreams, audioStreams) || self.canBuildWebm(videoStreams, audioStreams));
+              worker.terminate();
+              resolve(true);
               break;
             case "exit":
               console.log("Process exited with code " + msg.data);
@@ -218,6 +241,11 @@ export class TranscodingService {
     });
   }
 
+  isFileSupported() {
+    return this.canBuildMp4(this._videoStreams, this._audioStreams) || this.canBuildWebm(this._videoStreams, this._audioStreams);
+  }
+
+  // Check if the streams have h264 & AAC streams
   canBuildMp4(videoStreams: Array<VideoStream>, audioStreams: Array<AudioStream>): boolean {
     let H264Stream = videoStreams.find(vs => vs.codec == VideoCodecsEnum.H264);
     if (!H264Stream) return false;
@@ -228,6 +256,7 @@ export class TranscodingService {
     return true;
   }
 
+  // Check if the streams have vp8/vp9 & opus/vorbis streams
   canBuildWebm(videoStreams: Array<VideoStream>, audioStreams: Array<AudioStream>): boolean {
     let VP8Stream = videoStreams.find(vs => vs.codec == VideoCodecsEnum.VP8);
     let VP9Stream = videoStreams.find(vs => vs.codec == VideoCodecsEnum.VP9);

@@ -21,38 +21,35 @@
                         class="fas fa-times-circle"></i>&nbsp;{{unsupportedMessage}}</small>
             </div>
         </div>
-        <!-- <div class="row mb-3">
-            TODO: this will be implemented in the future
+        <div *ngIf="supportedMessage" class="row mb-3">
             <div class="col-sm-8 offset-sm-4">
-                <div class="row">
-                    <div class="col">
-                        <input type="checkbox">
-                        Video track 1
+                <button class="btn btn-link" *ngIf="!showAdvancedOptions" (click)="showAdvancedOptions = true">Show
+                    advanced options
+                </button>
+                <button class="btn btn-link" *ngIf="showAdvancedOptions" (click)="showAdvancedOptions = false">Hide
+                    advanced options
+                </button>
+                <div *ngIf="showAdvancedOptions">
+                    <div class="form-group">
+                        <label for="selectVideoStream">Video Stream</label>
+                        <select class="form-control" id="selectVideoStream">
+                            <option [ngValue]="option" *ngFor="let option of videoStreamOptions">
+                                Video Stream #{{option.videoStream.index}}: {{option.videoStream.codec}}
+                            </option>
+                        </select>
                     </div>
-                    <div class="col">
-                        h264
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <input type="checkbox">
-                        Audio track 1
-                    </div>
-                    <div class="col">
-                        AAC (eng)
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <input type="checkbox">
-                        Audio track 2
-                    </div>
-                    <div class="col">
-                        AAC (fr)
+                    <div class="form-group">
+                        <label for="selectAudioStream">Audio Stream</label>
+                        <select class="form-control" id="selectAudioStream">
+                            <option [ngValue]="option" *ngFor="let option of audioStreamOptions">
+                                Video Stream #{{option.audioStream.index}} {{option.audioStream.language}}:
+                                {{option.audioStream.codec}}
+                            </option>
+                        </select>
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
         <div class="form-group row">
             <label for="colFormLabel" class="col-sm-4 col-form-label">Subtitles (.srt or .vtt)</label>
             <div class="col-sm-8">
