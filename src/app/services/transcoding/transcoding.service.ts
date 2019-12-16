@@ -51,7 +51,7 @@ export class TranscodingService {
       if (!outputExtension) {
         reject("Could not find any suitable file format from the provided codecs");
       }
-      let outputName = inputName.split('.').pop() + outputExtension;
+      let outputName = [this.getFileWithoutExtension(inputName), outputExtension].join('.');
 
       worker.onmessage = function (e) {
         var msg = e.data;
@@ -132,6 +132,8 @@ export class TranscodingService {
   extractSubtitleFile(file: File, subtitleStream: SubtitleStream): Promise<File> {
     return new Promise((resolve, reject) => {
 
+      let self = this;
+
       // Start worker for the convertion
       var worker = new Worker("workers/worker-ffmpeg.js");
       let fileName = file.name;
@@ -179,7 +181,8 @@ export class TranscodingService {
               console.log(msg.data + "\n");
               break;
             case "done":
-              let subtitleFile = new File([msg.data], fileName + '.vtt', { type: 'text/vtt' });
+              let fileNameWithoutExtension = self.getFileWithoutExtension(fileName);
+              let subtitleFile = new File([msg.data], fileNameWithoutExtension + '.vtt', { type: 'text/vtt' });
               resolve(subtitleFile);
               break;
             case "exit":
@@ -191,6 +194,10 @@ export class TranscodingService {
       };
     });
   }
+
+  getFileWithoutExtension(filename: string): string {
+    return filename.split('.').slice(0, -1).join('.');
+  };
 
   // Uses ffmpeg to check if the video codecs of the file are supported
   loadAnalyzeFile(file: File): Promise<boolean> {

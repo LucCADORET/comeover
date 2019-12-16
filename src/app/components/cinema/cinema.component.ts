@@ -229,7 +229,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   isVideoFile(file): boolean {
-    return file.name.endsWith('.mp4');
+    return file.name.endsWith('.mp4') || file.name.endsWith('.webm'); 
   }
 
   isSubtitleFile(file): boolean {

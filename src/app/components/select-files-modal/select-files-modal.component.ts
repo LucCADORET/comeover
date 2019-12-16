@@ -117,12 +117,17 @@ export class SelectFilesModalComponent implements OnInit {
 
   handleVideoFileInput(files: FileList) {
     let file = files.item(0);
+
     this.analysisLoading = true;
+    this.unsupportedMessage = null;
+    this.supportedMessage = null
+    this.audioStreams = [];
+    this.videoStreams = []
+
     this.transcodingService.loadAnalyzeFile(file).then(() => {
       let isSupported = this.transcodingService.isFileSupported();
       if (isSupported) {
         this.videoFile = file;
-        this.unsupportedMessage = null;
         this.supportedMessage = 'This file is compatible for streaming.';
         this.videoStreams = this.transcodingService.videoStreams;
         this.audioStreams = this.transcodingService.audioStreams;
@@ -130,16 +135,10 @@ export class SelectFilesModalComponent implements OnInit {
         this.setOptionsFormDefaultValues();
       } else {
         this.unsupportedMessage = 'The video codecs of that file are not supported. Supported codecs for video are h264, VP8 and VP9, supported codecs for audio are AAC, Vorbis and Opus. Come Over will support transcoding in the future ! But for now, you\'ll have to try with another file.';
-        this.supportedMessage = null
-        this.audioStreams = [];
-        this.videoStreams = []
         this.clearOptionsForms();
       }
     }).catch((err) => {
       this.unsupportedMessage = 'There was an error processing the file. This sometimes happens when the file is too big. If the issue remains, please contact support.';
-      this.supportedMessage = null
-      this.audioStreams = [];
-      this.videoStreams = []
       this.clearOptionsForms();
     }).finally(() => {
       this.analysisLoading = false;

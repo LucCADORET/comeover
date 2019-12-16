@@ -47,7 +47,7 @@ let defaultArgs = [
 let getCodecs = (file) => {
     const Module = getModule();
     const data = new Uint8Array(file.data); // Should be an Uint8Array
-    const iPath = `file.${file.name.split('.').pop()}`;
+    const iPath = `input.${file.name.split('.').pop()}`;
     const ffmpeg = getFFmpeg();
 
     // command line is setting a dummy output so ffmpeg won't throw an error
@@ -59,7 +59,7 @@ let getCodecs = (file) => {
 let extractSubtitles = (file, index) => {
     const Module = getModule();
     const data = new Uint8Array(file.data); // Should be an Uint8Array
-    const iPath = `file.${file.name.split('.').pop()}`;
+    const iPath = `input.${file.name.split('.').pop()}`;
     const oPath = `subtitles.vtt`;
     const ffmpeg = getFFmpeg();
     const args = [...defaultArgs, ...` -i ${iPath} -map 0:${index} ${oPath}`.trim().split(' ')];
@@ -71,8 +71,8 @@ let extractSubtitles = (file, index) => {
 let transcode = (file, videoStreamIndex, audioStreamIndex, outputExtension) => {
     const Module = getModule();
     const data = new Uint8Array(file.data); // Should be an Uint8Array
-    const iPath = `file.${file.name.split('.').pop()}`;
-    const oPath = `file.${outputExtension}`;
+    const iPath = `input.${file.name.split('.').pop()}`;
+    const oPath = `output.${outputExtension}`;
     const ffmpeg = getFFmpeg();
     const args = [...defaultArgs, ...` -i ${iPath} -c copy -map 0:${videoStreamIndex} -map 0:${audioStreamIndex} ${oPath}`.trim().split(' ')];
     Module.FS.writeFile(iPath, data);
