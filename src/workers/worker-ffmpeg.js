@@ -68,13 +68,22 @@ let extractSubtitles = (file, index) => {
     return Uint8Array.from(Module.FS.readFile(oPath));
 }
 
-let transcode = (file, videoStreamIndex, audioStreamIndex, outputExtension) => {
+let transcode = (file, videoStreamIndex, videoCodec, audioStreamIndex, audioCodec, outputExtension) => {
     const Module = getModule();
     const data = new Uint8Array(file.data); // Should be an Uint8Array
     const iPath = `input.${file.name.split('.').pop()}`;
     const oPath = `output.${outputExtension}`;
     const ffmpeg = getFFmpeg();
-    const args = [...defaultArgs, ...` -i ${iPath} -c copy -map 0:${videoStreamIndex} -map 0:${audioStreamIndex} ${oPath}`.trim().split(' ')];
+
+    // Transcode if there's a given codec, copy otherwise
+    const vcodecString = `-map 0:${videoStreamIndex} ${(videoCodec ? `-vcodec ${videoCodec}` : '-vcodec copy')}`;
+    const acodecString = `-map 0:${audioStreamIndex} ${(audioCodec ? `-acodec ${audioCodec}` : '-acodec copy')}`;
+
+    logger("vsi: " + videoStreamIndex, 'stdout');
+    logger("asi: " + audioStreamIndex, 'stdout');
+
+    const args = [...defaultArgs, ...` -i ${iPath} -preset ultrafast ${vcodecString} ${acodecString} ${oPath}`.trim().split(' ')];
+    logger("########## Command line: ##########" + args.join(' '), 'stdout');
     Module.FS.writeFile(iPath, data);
     ffmpeg(args.length, strList2ptr(args));
     return Uint8Array.from(Module.FS.readFile(oPath));
@@ -111,14 +120,20 @@ onmessage = function (event) {
 
         var time = now();
 
-        const result = transcode(message.file, message.videoStreamIndex, message.audioStreamIndex, message.outputExtension);
+        const result = transcode(
+            message.file,
+            message.videoStreamIndex,
+            message.videoCodec,
+            message.audioStreamIndex,
+            message.audioCodec,
+            message.outputExtension
+        );
 
         var totalTime = now() - time;
         postMessage({
             'type': 'stdout',
             'data': 'Finished processing (took ' + totalTime + 'ms)'
         });
-
 
         let resultData = {
             'type': 'done',

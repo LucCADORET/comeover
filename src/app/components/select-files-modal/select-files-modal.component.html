@@ -14,10 +14,13 @@
                     <label class="custom-file-label"
                         for="customFile">{{videoFile ? videoFile.name : 'Choose file'}}</label>
                 </div><br>
-                <small class="text-success" *ngIf="supportedMessage"><i
-                        class="fas fa-check-circle"></i>&nbsp;{{supportedMessage}}</small>
-                <small class="text-danger" *ngIf="unsupportedMessage"><i
-                        class="fas fa-times-circle"></i>&nbsp;{{unsupportedMessage}}</small>
+                <small class="text-success" *ngIf="supportedMessage"><i class="fas fa-check-circle"></i>&nbsp;
+                    {{supportedMessage}}
+                </small>
+                <small class="text-warning" *ngIf="unsupportedMessage">
+                    <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                    {{unsupportedMessage}}
+                </small>
             </div>
         </div>
         <div *ngIf="analysisLoading">
@@ -27,7 +30,7 @@
             </div>
             <small>Analysing file...</small>
         </div>
-        <div *ngIf="supportedMessage" class="row mb-3">
+        <div *ngIf="videoFile" class="row mb-3">
             <div class="col">
                 <button class="btn btn-link" *ngIf="!showAdvancedOptions" (click)="showAdvancedOptions = true">
                     Show advanced options&nbsp;<i class="fas fa-angle-right"></i>
@@ -43,6 +46,12 @@
                                 Video Stream #{{videoStream.index}}: {{videoStream.codec}}
                             </option>
                         </select>
+                        <small
+                            *ngIf="optionsForm.get('videoStreamControl').invalid && optionsForm.get('videoStreamControl').errors.invalidCodec"
+                            class="text-warning">
+                            This codec is not natively supported and needs to be transcoded (this can take a few
+                            minutes).
+                        </small>
                     </div>
                     <div class="form-group">
                         <label for="selectAudioStream">Audio</label>
@@ -52,6 +61,12 @@
                                 {{audioStream.codec}}
                             </option>
                         </select>
+                        <small
+                            *ngIf="optionsForm.get('audioStreamControl').invalid && optionsForm.get('audioStreamControl').errors.invalidCodec"
+                            class="text-warning">
+                            This codec is not natively supported and needs to be transcoded (this can take a few
+                            minutes).
+                        </small>
                     </div>
                     <div class="form-group" *ngIf="subtitleStreams && subtitleStreams.length">
                         <label for="selectSubtitleStream">Subtitle</label>

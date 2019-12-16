@@ -7,20 +7,15 @@ import { AudioStream } from 'src/app/models/audioStream';
 import { VideoCodecsEnum } from 'src/app/enums/videoCodecsEnum';
 import { AudioCodecsEnum } from 'src/app/enums/audioCodecsEnum';
 import { SubtitleStream } from 'src/app/models/subtitleStream';
+import { isCodecSupported } from 'src/app/utils/utils';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TranscodingService {
 
-  // Source: https://www.chromium.org/audio-video
-  supportedContainers: Array<string> = [
-    'MP4',
-    'Ogg',
-    'WebM',
-    'WAV',
-  ]
 
+  // Codecs info: https://www.chromium.org/audio-video
   private _videoStreams: Array<VideoStream> = [];
   private _audioStreams: Array<AudioStream> = [];
   private _subtitleStreams: Array<SubtitleStream> = [];
@@ -40,14 +35,37 @@ export class TranscodingService {
   }
 
   // If file has mkv format, it will perform a convertion
-  convertVideoFile(file: File, videoStream: VideoStream, audioStream: AudioStream): Promise<File> {
+  transcode(file: File, videoStream: VideoStream, audioStream: AudioStream): Promise<File> {
     return new Promise((resolve, reject) => {
+
+      // If no stream is provided for either the video or the audio, find which codec to use (if codec = null, we keep the codec)
+      let videoCodec = null;
+      let audioCodec = null;
+      if (!isCodecSupported(videoStream.codec)) {
+        if (audioStream && (audioStream.codec == AudioCodecsEnum.OPUS || audioStream.codec == AudioCodecsEnum.VORBIS)) {
+          videoCodec = VideoCodecsEnum.VP8;
+        } else if (audioStream && (audioStream.codec == AudioCodecsEnum.AAC)) {
+          videoCodec = VideoCodecsEnum.H264;
+        } else {
+          videoCodec = VideoCodecsEnum.VP8;
+          audioCodec = AudioCodecsEnum.OPUS;
+        }
+      } else if (!isCodecSupported(audioStream.codec)) {
+        if (videoStream && (videoStream.codec == VideoCodecsEnum.VP8 || videoStream.codec == VideoCodecsEnum.VP9)) {
+          audioCodec = AudioCodecsEnum.OPUS;
+        } else if (videoStream && (videoStream.codec == VideoCodecsEnum.H264)) {
+          audioCodec = AudioCodecsEnum.AAC;
+        } else {
+          videoCodec = VideoCodecsEnum.VP8;
+          audioCodec = AudioCodecsEnum.OPUS;
+        }
+      }
 
       // Start worker for the convertion
       var worker = new Worker("workers/worker-ffmpeg.js");
       let self = this;
       let inputName = file.name;
-      let outputExtension = this.getOutputFormat(videoStream, audioStream);
+      let outputExtension = this.getOutputExtension(videoCodec || videoStream.codec, audioCodec || audioStream.codec);
       if (!outputExtension) {
         reject("Could not find any suitable file format from the provided codecs");
       }
@@ -79,8 +97,10 @@ export class TranscodingService {
                     data: inputBuffer,
                     name: inputName,
                   },
-                  videoStreamIndex: videoStream.index,
-                  audioStreamIndex: audioStream.index,
+                  videoStreamIndex: videoStream ? videoStream.index : null,
+                  videoCodec: videoCodec,
+                  audioStreamIndex: audioStream ? audioStream.index : null,
+                  audioCodec: audioCodec,
                   outputExtension: outputExtension,
                 };
                 worker.postMessage(commandData, [commandData.file.data]);
@@ -200,7 +220,7 @@ export class TranscodingService {
   };
 
   // Uses ffmpeg to check if the video codecs of the file are supported
-  loadAnalyzeFile(file: File): Promise<boolean> {
+  loadFile(file: File): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       var worker = new Worker("workers/worker-ffmpeg.js");
       let self = this;
@@ -339,11 +359,14 @@ export class TranscodingService {
   }
 
   // Returns the output format that sould be built depending on the codecs
-  getOutputFormat(videoStream: VideoStream, audioStream: AudioStream) {
-    if (this.canBuildWebm([videoStream], [audioStream])) {
-      return 'webm';
-    } else if (this.canBuildMp4([videoStream], [audioStream])) {
+  getOutputExtension(videoCodec: VideoCodecsEnum, audioCodec: AudioCodecsEnum) {
+    if (videoCodec == VideoCodecsEnum.H264 && audioCodec == AudioCodecsEnum.AAC) {
       return 'mp4';
+    } else if (
+      (videoCodec == VideoCodecsEnum.VP8 || videoCodec == VideoCodecsEnum.VP9)
+      && (audioCodec == AudioCodecsEnum.VORBIS || audioCodec == AudioCodecsEnum.OPUS)
+    ) {
+      return 'webm';
     }
     return null;
   }

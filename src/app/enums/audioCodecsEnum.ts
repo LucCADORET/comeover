@@ -1,9 +1,9 @@
 export enum AudioCodecsEnum {
-    FLAC = 'FLAC',
-    MP3 = 'MP3',
-    OPUS = 'Opus',
-    VORBIS = 'Vorbis',
-    AAC = 'AAC',
-    EAC3 = 'EAC3',
-    UNKNOWN = 'Unknown',
+    FLAC = 'flac',
+    MP3 = 'mp3',
+    OPUS = 'opus',
+    VORBIS = 'vorbis',
+    AAC = 'aac',
+    EAC3 = 'eac3',
+    UNKNOWN = 'unknown',
 }

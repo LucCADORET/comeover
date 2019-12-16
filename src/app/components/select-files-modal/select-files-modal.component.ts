@@ -7,6 +7,7 @@ import { SubtitleStream } from 'src/app/models/subtitleStream';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { resolve } from 'url';
 import { reject } from 'q';
+import { codecValidator } from 'src/app/validators/codec.validator';
 
 @Component({
   selector: 'app-select-files-modal',
@@ -36,8 +37,8 @@ export class SelectFilesModalComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {
     this.optionsForm = this.formBuilder.group({
-      videoStreamControl: [null],
-      audioStreamControl: [null],
+      videoStreamControl: [null, codecValidator],
+      audioStreamControl: [null, codecValidator],
       subtitleStreamControl: [null],
       subtitleFileControl: [null],
     });
@@ -47,16 +48,16 @@ export class SelectFilesModalComponent implements OnInit {
 
   validate() {
 
+    // Get video stream if it's a valid codec
     let videoStream = this.optionsForm.get('videoStreamControl').value;
+
+    // Get audio stream if it's a valid codec
     let audioStream = this.optionsForm.get('audioStreamControl').value;
+
     let subtitleStream = this.optionsForm.get('subtitleStreamControl').value;
     let subtitleFile = this.optionsForm.get('subtitleFileControl').value;
 
     // Verify that at least a video and an audio stream is selected
-    if (!videoStream || !audioStream) {
-      this.error = "At least one video and one audio stream must be selected";
-      return;
-    }
     this.validateLoading = true;
 
     // Get subtitle file either from a given file, either from the video file (if needed)
@@ -76,7 +77,7 @@ export class SelectFilesModalComponent implements OnInit {
 
       // Convert video files depending on the selected streams selected
       // Todo eventually: check if the stream combination is compatible
-      this.transcodingService.convertVideoFile(this.videoFile, videoStream, audioStream).then((file: File) => {
+      this.transcodingService.transcode(this.videoFile, videoStream, audioStream).then((file: File) => {
         this.videoFile = file;
         if (this.subtitlesFile) {
           this.activeModal.close([this.videoFile, this.subtitlesFile]);
@@ -118,27 +119,29 @@ export class SelectFilesModalComponent implements OnInit {
   handleVideoFileInput(files: FileList) {
     let file = files.item(0);
 
+    // TODO: check mime time of that file
+
     this.analysisLoading = true;
     this.unsupportedMessage = null;
     this.supportedMessage = null
-    this.audioStreams = [];
+    this.error = null,
+      this.audioStreams = [];
     this.videoStreams = []
 
-    this.transcodingService.loadAnalyzeFile(file).then(() => {
+    this.transcodingService.loadFile(file).then(() => {
       let isSupported = this.transcodingService.isFileSupported();
       if (isSupported) {
-        this.videoFile = file;
         this.supportedMessage = 'This file is compatible for streaming.';
-        this.videoStreams = this.transcodingService.videoStreams;
-        this.audioStreams = this.transcodingService.audioStreams;
-        this.subtitleStreams = this.transcodingService.subtitleStreams;
-        this.setOptionsFormDefaultValues();
       } else {
-        this.unsupportedMessage = 'The video codecs of that file are not supported. Supported codecs for video are h264, VP8 and VP9, supported codecs for audio are AAC, Vorbis and Opus. Come Over will support transcoding in the future ! But for now, you\'ll have to try with another file.';
-        this.clearOptionsForms();
+        this.unsupportedMessage = 'Some of the codecs of that file are not supported.';
       }
+      this.videoFile = file;
+      this.videoStreams = this.transcodingService.videoStreams;
+      this.audioStreams = this.transcodingService.audioStreams;
+      this.subtitleStreams = this.transcodingService.subtitleStreams;
+      this.setOptionsFormDefaultValues();
     }).catch((err) => {
-      this.unsupportedMessage = 'There was an error processing the file. This sometimes happens when the file is too big. If the issue remains, please contact support.';
+      this.error = 'There was an error processing the file. This sometimes happens when the file is too big. If the issue remains, please contact support.';
       this.clearOptionsForms();
     }).finally(() => {
       this.analysisLoading = false;
