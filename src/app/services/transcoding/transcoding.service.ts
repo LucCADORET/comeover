@@ -319,19 +319,12 @@ export class TranscodingService {
               break;
             case "stderr":
 
-              // let regex = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-z0-9\s]+,)*([a-z0-9\s]+){1}/;
-              // let v2 = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-zA-Z0-9\s\(\)\/]+),/gmi;
-              let v3 = /^Stream #[0-9]:([0-9])(\([a-z]{3}\))?: (Video|Audio|Subtitle): (.+)/
-              /**
-               * Tests:
-               * Stream #0:0: Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
-               
-               Stream #0:0(und): Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
-               
-               Stream #0:1(eng): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 127 kb/s (default)
+              // Parse video/audio/subtitle tracks
+              // examples: Stream #0:0: Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
+              // Stream #0:0(und): Video: h264 (High), yuv420p(progressive), 1916x796 [SAR 1:1 DAR 479:199], q=2-31, 25 fps, 25 tbr, 1k tbn, 1k tbc (default)
+              // Stream #0:2(eng): Subtitle: subrip
+              let streamRegex = /^Stream #[0-9]:([0-9])(\([a-z]{3}\))?: (Video|Audio|Subtitle): (.+)/
 
-               Stream #0:2(eng): Subtitle: subrip
-               */
               let line = msg.data.trim();
 
               // If we get the line 'Output #0' then we know we can stop looking at the data
@@ -340,18 +333,14 @@ export class TranscodingService {
               }
 
               if (!isOutputSection) {
-                let groups = line.match(v3);
+                let groups = line.match(streamRegex);
                 if (groups) {
-                  let trackNumberGroup = null;
-                  let languageGroup = null;
-                  let trackTypeGroup = null;
-                  let codecsGroup = null;
 
                   // Getting groups depending on how many there was
-                  trackNumberGroup = groups[1];
-                  languageGroup = groups[2];
-                  trackTypeGroup = groups[3];
-                  codecsGroup = groups[4];
+                  let trackNumberGroup = groups[1];
+                  let languageGroup = groups[2];
+                  let trackTypeGroup = groups[3];
+                  let codecsGroup = groups[4];
 
                   if (trackTypeGroup == 'Video') {
                     self._videoStreams.push(new VideoStream(trackNumberGroup, codecsGroup));

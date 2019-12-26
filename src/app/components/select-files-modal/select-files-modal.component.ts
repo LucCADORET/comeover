@@ -58,6 +58,7 @@ export class SelectFilesModalComponent implements OnInit {
 
     // Verify that at least a video and an audio stream is selected
     this.validateLoading = true;
+    this.optionsForm.disable();
     this.transcodingProgress = 0;
 
     // Get subtitle file either from a given file, either from the video file (if needed)
@@ -93,10 +94,12 @@ export class SelectFilesModalComponent implements OnInit {
         progressSubscription.unsubscribe();
         this.error = err;
         this.validateLoading = false;
+        this.optionsForm.enable();
       });
     }).catch((err) => {
       this.error = err;
       this.validateLoading = false;
+      this.optionsForm.enable();
     });
 
 
@@ -125,13 +128,17 @@ export class SelectFilesModalComponent implements OnInit {
   handleVideoFileInput(files: FileList) {
     let file = files.item(0);
 
-    // TODO: check mime type of that file
+    if (!file.type.includes('video')) {
+      this.error = 'Only video files are supported.';
+      return;
+    }
 
     this.analysisLoading = true;
+    this.optionsForm.disable();
     this.unsupportedMessage = null;
     this.supportedMessage = null
-    this.error = null,
-      this.audioStreams = [];
+    this.error = null;
+    this.audioStreams = [];
     this.videoStreams = []
 
     this.transcodingService.loadFile(file).then(() => {
@@ -150,6 +157,7 @@ export class SelectFilesModalComponent implements OnInit {
       this.error = 'There was an error processing the file. This sometimes happens when the file is too big. If the issue remains, please contact support.';
       this.clearOptionsForms();
     }).finally(() => {
+      this.optionsForm.enable();
       this.analysisLoading = false;
     });
   }
