@@ -5,8 +5,6 @@ import { VideoStream } from 'src/app/models/videoStream';
 import { AudioStream } from 'src/app/models/audioStream';
 import { SubtitleStream } from 'src/app/models/subtitleStream';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { resolve } from 'url';
-import { reject } from 'q';
 import { codecValidator } from 'src/app/validators/codec.validator';
 
 @Component({
@@ -23,6 +21,7 @@ export class SelectFilesModalComponent implements OnInit {
   unsupportedMessage: string;
   analysisLoading: boolean = false;
   validateLoading: boolean = false;
+  transcodingProgress = 0;
   showAdvancedOptions: boolean = false;
   ffmpegWorker: Worker;
   videoStreams: Array<VideoStream> = [];
@@ -59,6 +58,7 @@ export class SelectFilesModalComponent implements OnInit {
 
     // Verify that at least a video and an audio stream is selected
     this.validateLoading = true;
+    this.transcodingProgress = 0;
 
     // Get subtitle file either from a given file, either from the video file (if needed)
     let getSubbtitlePromise = new Promise((resolve, reject) => {
@@ -75,9 +75,14 @@ export class SelectFilesModalComponent implements OnInit {
     getSubbtitlePromise.then((file: File) => {
       this.subtitlesFile = file;
 
+      let progressSubscription = this.transcodingService.transcodeProgress.subscribe(progress => {
+        this.transcodingProgress = progress;
+      });
+
       // Convert video files depending on the selected streams selected
       // Todo eventually: check if the stream combination is compatible
       this.transcodingService.transcode(this.videoFile, videoStream, audioStream).then((file: File) => {
+        progressSubscription.unsubscribe();
         this.videoFile = file;
         if (this.subtitlesFile) {
           this.activeModal.close([this.videoFile, this.subtitlesFile]);
@@ -85,6 +90,7 @@ export class SelectFilesModalComponent implements OnInit {
           this.activeModal.close([this.videoFile]);
         }
       }).catch((err) => {
+        progressSubscription.unsubscribe();
         this.error = err;
         this.validateLoading = false;
       });
@@ -119,7 +125,7 @@ export class SelectFilesModalComponent implements OnInit {
   handleVideoFileInput(files: FileList) {
     let file = files.item(0);
 
-    // TODO: check mime time of that file
+    // TODO: check mime type of that file
 
     this.analysisLoading = true;
     this.unsupportedMessage = null;

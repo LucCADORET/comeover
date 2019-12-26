@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import VTTConverter from 'srt-webvtt';
-import { resolve } from 'url';
-import { reject } from 'q';
 import { VideoStream } from 'src/app/models/videoStream';
 import { AudioStream } from 'src/app/models/audioStream';
 import { VideoCodecsEnum } from 'src/app/enums/videoCodecsEnum';
 import { AudioCodecsEnum } from 'src/app/enums/audioCodecsEnum';
 import { SubtitleStream } from 'src/app/models/subtitleStream';
 import { isCodecSupported } from 'src/app/utils/utils';
+import { Observable, Subject } from 'rxjs';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +19,8 @@ export class TranscodingService {
   private _videoStreams: Array<VideoStream> = [];
   private _audioStreams: Array<AudioStream> = [];
   private _subtitleStreams: Array<SubtitleStream> = [];
+  private _transcodeProgress: Subject<number> = new Subject<number>();
+
 
   constructor() { }
 
@@ -34,8 +36,16 @@ export class TranscodingService {
     return this._subtitleStreams;
   }
 
+  get transcodeProgress(): Observable<number> {
+    return this._transcodeProgress.asObservable();
+  }
+
   // If file has mkv format, it will perform a convertion
   transcode(file: File, videoStream: VideoStream, audioStream: AudioStream): Promise<File> {
+
+    // Reset progress
+    this._transcodeProgress.next(0);
+
     return new Promise((resolve, reject) => {
 
       // If no stream is provided for either the video or the audio, find which codec to use (if codec = null, we keep the codec)
@@ -70,6 +80,8 @@ export class TranscodingService {
         reject("Could not find any suitable file format from the provided codecs");
       }
       let outputName = [this.getFileWithoutExtension(inputName), outputExtension].join('.');
+      let isOutputSection = false;
+      let inputDuration = null;
 
       worker.onmessage = function (e) {
         var msg = e.data;
@@ -112,12 +124,53 @@ export class TranscodingService {
               console.log(msg.data + "\n");
               break;
             case "stderr":
-              console.log(msg.data + "\n");
+
+              let line = msg.data.trim();
+
+              // If we get the line 'Output #0' then we know we can stop looking at the data
+              if (line.includes('Output #0')) {
+                isOutputSection = true;
+              }
+
+              if (!isOutputSection) {
+                // Parse input duration
+                // Example duration:   Duration: 00:32:03.93, start: 0.000000, bitrate: 1651 kb/s
+                let regexInputDuration = /^Duration: (.*), start: .*/
+                let groups = line.match(regexInputDuration);
+                if (groups) {
+
+                  // Getting groups depending on how many there was
+                  let durationGroup = groups[1];
+                  if (durationGroup != null) {
+                    inputDuration = moment.duration(durationGroup);
+                  }
+                }
+              }
+
+              // Parse progress duration
+              // Example: frame=  168 fps=0.0 q=-1.0 size=    1024kB time=00:00:07.16 bitrate=1170.2kbits/s speed=14.3x
+              if (line.startsWith('frame=')) {
+                let regexProgressDuration = /^frame=(.*) fps=(.*) q=(.*) size=(.*) time=(.*) bitrate=(.*) speed=(.*)/
+                let groups = line.match(regexProgressDuration);
+                if (groups) {
+                  groups = groups.map(group => group.trim());
+
+                  // Getting groups depending on how many there was
+                  let timeGroup = groups[5];
+                  if (timeGroup != null) {
+                    let progressDuration = moment.duration(timeGroup);
+                    let progress = Math.floor(100 - (((inputDuration.asMilliseconds() - progressDuration.asMilliseconds()) * 100) / inputDuration.asMilliseconds()))
+                    self._transcodeProgress.next(progress);
+                  }
+                }
+              }
+              console.log(line);
               break;
             case "error":
               console.log(msg.data + "\n");
               break;
             case "done":
+              self._transcodeProgress.next(100);
               resolve(new File([msg.data], outputName, { type: outputExtension == 'mp4' ? 'video/mp4' : 'video/webm' }));
               break;
             case "exit":
@@ -265,8 +318,6 @@ export class TranscodingService {
               // nothing to do
               break;
             case "stderr":
-
-
 
               // let regex = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-z0-9\s]+,)*([a-z0-9\s]+){1}/;
               // let v2 = /^Stream #[0-9]:[0-9](\([a-z]{3}\))?: (Video|Audio): ([a-zA-Z0-9\s\(\)\/]+),/gmi;

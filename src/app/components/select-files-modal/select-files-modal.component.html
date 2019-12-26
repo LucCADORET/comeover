@@ -97,6 +97,13 @@
             </div>
         </div>
     </form>
+    <div class="row" *ngIf="validateLoading">
+        <div class="col">
+            <ngb-progressbar type="info" [value]="transcodingProgress" [striped]="true" [animated]="true">
+                {{transcodingProgress}}%
+            </ngb-progressbar>
+        </div>
+    </div>
     <div class="row" *ngIf="error">
         <div class="col">
             <div class="alert alert-danger">{{error}}</div>
