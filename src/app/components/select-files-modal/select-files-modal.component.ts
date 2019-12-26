@@ -139,7 +139,7 @@ export class SelectFilesModalComponent implements OnInit {
       if (isSupported) {
         this.supportedMessage = 'This file is compatible for streaming.';
       } else {
-        this.unsupportedMessage = 'Some of the codecs of that file are not supported.';
+        this.unsupportedMessage = 'This file is not natively supported and will need to be transcoded (this can take a few minutes).';
       }
       this.videoFile = file;
       this.videoStreams = this.transcodingService.videoStreams;
