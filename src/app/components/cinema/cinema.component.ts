@@ -6,7 +6,6 @@ import { UserService } from 'src/app/services/user/user.service';
 import { UserData } from 'src/app/models/userData';
 import Plyr from 'plyr';
 import { Subscription } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
@@ -49,7 +48,6 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     private webTorrentService: WebTorrentService,
     private syncService: SyncService,
     private userService: UserService,
-    private modalService: NgbModal,
     private toastService: ToastService,
   ) {
 
