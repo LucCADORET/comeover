@@ -4,10 +4,6 @@
   border-radius: calc(0.25rem - 1px);
 }
 
-::ng-deep .plyr {
-  flex-grow: 1;
-}
-
 app-social {
   height: 65vh;
   width: 300px;
@@ -15,6 +11,37 @@ app-social {
 
 #player-social-wrapper {
   height: 65vh;
+
+  .player-wrapper {
+    height: 100%;
+    flex-grow: 1;
+    position: relative;
+
+    .disabling-overlay {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0px;
+      right: 0px;
+      top: 0px;
+      bottom: 0px;
+      background-color: #000;
+      opacity: 0.5;
+      z-index: 1000;
+    }
+  }
+}
+
+::ng-deep .plyr {
+  height: 100%;
+}
+
+::ng-deep .plyr__video-wrapper {
+  height: 100%;
+
+  #player {
+    height: 100%;
+  }
 }
 
 app-toasts-container {

@@ -13,8 +13,6 @@ import { UserSettingsModalComponent } from './components/user-settings-modal/use
 import { ColorPickerComponent } from './components/color-picker/color-picker.component';
 import { BytesPipe } from './pipes/bytes.pipe';
 import { DurationPipe } from './pipes/duration.pipe';
-import { CinemaErrorModalComponent } from './components/cinema-error-modal/cinema-error-modal.component';
-import { LoadingOverlayComponent } from './components/loading-overlay/loading-overlay.component';
 import { FaqComponent } from './components/faq/faq.component';
 import { DonateComponent } from './components/donate/donate.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -32,8 +30,6 @@ import { ToastsContainerComponent } from './components/toasts-container/toasts-c
     ColorPickerComponent,
     BytesPipe,
     DurationPipe,
-    CinemaErrorModalComponent,
-    LoadingOverlayComponent,
     FaqComponent,
     DonateComponent,
     CopyClipboardDirective,
@@ -51,7 +47,6 @@ import { ToastsContainerComponent } from './components/toasts-container/toasts-c
   entryComponents: [
     SelectFilesModalComponent,
     UserSettingsModalComponent,
-    CinemaErrorModalComponent
   ]
 })
 export class AppModule { }

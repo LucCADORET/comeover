@@ -18,9 +18,12 @@
 </div>
 
 <div class="d-flex flex-row mt-3" id="player-social-wrapper">
-    <video id="player" #videoElem>
-        <track default id="subtitles" #subtitlesElem>
-    </video>
+    <div class="player-wrapper">
+        <div class="disabling-overlay" *ngIf="torrentLoading"></div>
+        <video id="player" #videoElem>
+            <track default id="subtitles" #subtitlesElem>
+        </video>
+    </div>
     <app-social class="d-flex flex-column ml-3"></app-social>
 </div>
 
