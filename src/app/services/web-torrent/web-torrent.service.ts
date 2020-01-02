@@ -28,9 +28,6 @@ export class WebTorrentService {
   startTorrent(callback: any) {
     this.client = new WebTorrent();
     if (this._filesToSeed) {
-      // let options = {
-      //   name: uuidv4()
-      // }
       this.client.seed(this._filesToSeed, (torrent) => {
         this._magnet = torrent.magnetURI;
         callback(torrent)
@@ -41,7 +38,7 @@ export class WebTorrentService {
   }
 
   destroyClient() {
-    if(this.client) {
+    if (this.client) {
       this.client.destroy();
     }
   }
