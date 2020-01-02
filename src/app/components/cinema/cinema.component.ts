@@ -7,7 +7,6 @@ import { UserData } from 'src/app/models/userData';
 import Plyr from 'plyr';
 import { Subscription } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CinemaErrorModalComponent } from '../cinema-error-modal/cinema-error-modal.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
@@ -29,6 +28,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
   userId: string;
   allowedShift: number = 5;
   torrentLoading: boolean = true;
+  torrentTimedout: boolean = false;
   torrentLoadingTimeoutMs: number = 30000;
   torrentLoadingTimeout: any;
   broadcastInterval: any;
@@ -185,6 +185,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onTorrent(torrent) {
     this.torrentLoading = false;
+    this.torrentTimedout = false;
     this.clearLoadingTimeout();
 
     let self = this;
@@ -229,7 +230,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   isVideoFile(file): boolean {
-    return file.name.endsWith('.mp4') || file.name.endsWith('.webm'); 
+    return file.name.endsWith('.mp4') || file.name.endsWith('.webm');
   }
 
   isSubtitleFile(file): boolean {
@@ -259,14 +260,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onTorrentLoadingTimeout() {
-    this.torrentLoading = false;
-    const modalRef = this.modalService.open(CinemaErrorModalComponent, {
-      backdrop: 'static',
-      keyboard: false,
-    });
-    modalRef.result.then(() => {
-      // Use this ??
-    });
+    this.torrentTimedout = true;
   }
 
   notifyShareURLCopied(payload: string) {
