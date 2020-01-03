@@ -17,12 +17,12 @@ app.get('*', (req, res) => {
 
 // send the user the ownership google file
 app.get('/robots.txt', (req, res) => {
-  res.sendFile(path.join(__dirname, 'seo/sitemap.xml'));
+  res.sendFile(path.join(__dirname, 'dist/seo/sitemap.xml'));
 });
 
 // send the user the ownership google file
 app.get('/sitemap.xml', (req, res) => {
-  res.sendFile(path.join(__dirname, 'seo/sitemap.xml'));
+  res.sendFile(path.join(__dirname, 'dist/seo/sitemap.xml'));
 });
 
 
