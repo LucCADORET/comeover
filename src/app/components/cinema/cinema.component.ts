@@ -7,6 +7,7 @@ import { UserData } from 'src/app/models/userData';
 import Plyr from 'plyr';
 import { Subscription } from 'rxjs';
 import { ToastService } from 'src/app/services/toast/toast.service';
+import { LoggerService } from 'src/app/services/logger/logger.service';
 
 @Component({
   selector: 'app-cinema',
@@ -49,6 +50,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     private syncService: SyncService,
     private userService: UserService,
     private toastService: ToastService,
+    private logger: LoggerService,
   ) {
 
   }
@@ -149,8 +151,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onUserData(data: UserData) {
-
-    console.log(data);
+    this.logger.log(JSON.stringify(data));
 
     // The creator doesn't synchronize with anyone, and nobody synchronizes with people other than the creator
     if (this.isCreator || !data.isCreator) return;
@@ -188,7 +189,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 
     let self = this;
 
-    console.log('Got torrent metadata!')
+    this.logger.log('Got torrent metadata!');
 
     this.info = 'Torrent info hash: ' + torrent.infoHash + ' ' +
       '<a href="' + torrent.magnetURI + '" target="_blank">[Magnet URI]</a> ' +

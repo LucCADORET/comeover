@@ -8,6 +8,7 @@ import { SubtitleStream } from 'src/app/models/subtitleStream';
 import { isCodecSupported } from 'src/app/utils/utils';
 import { Observable, Subject } from 'rxjs';
 import * as moment from 'moment';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +23,9 @@ export class TranscodingService {
   private _transcodeProgress: Subject<number> = new Subject<number>();
 
 
-  constructor() { }
+  constructor(
+    private logger: LoggerService
+  ) { }
 
   get videoStreams(): Array<VideoStream> {
     return this._videoStreams;
@@ -121,7 +124,7 @@ export class TranscodingService {
               reader.readAsArrayBuffer(file);
               break;
             case "stdout":
-              console.log(msg.data + "\n");
+              self.logger.log(msg.data + "\n")
               break;
             case "stderr":
 
@@ -164,17 +167,17 @@ export class TranscodingService {
                   }
                 }
               }
-              console.log(line);
+              self.logger.log(line);
               break;
             case "error":
-              console.log(msg.data + "\n");
+              self.logger.error(msg.data + "\n");
               break;
             case "done":
               self._transcodeProgress.next(100);
               resolve(new File([msg.data], outputName, { type: outputExtension == 'mp4' ? 'video/mp4' : 'video/webm' }));
               break;
             case "exit":
-              console.log("Process exited with code " + msg.data);
+              self.logger.log("Process exited with code " + msg.data)
               worker.terminate();
               break;
           }
@@ -245,13 +248,13 @@ export class TranscodingService {
               reader.readAsArrayBuffer(file);
               break;
             case "stdout":
-              console.log(msg.data + "\n");
+              self.logger.log(msg.data + "\n");
               break;
             case "stderr":
-              console.log(msg.data + "\n");
+              self.logger.log(msg.data + "\n");
               break;
             case "error":
-              console.log(msg.data + "\n");
+              self.logger.log(msg.data + "\n");
               break;
             case "done":
               let fileNameWithoutExtension = self.getFileWithoutExtension(fileName);
@@ -259,7 +262,7 @@ export class TranscodingService {
               resolve(subtitleFile);
               break;
             case "exit":
-              console.log("Process exited with code " + msg.data);
+              self.logger.log("Process exited with code " + msg.data);
               worker.terminate();
               break;
           }
@@ -350,7 +353,7 @@ export class TranscodingService {
                     self._subtitleStreams.push(new SubtitleStream(trackNumberGroup, languageGroup, codecsGroup));
                   }
                 }
-                console.log(line);
+                self.logger.log(line);
               }
               break;
             case "error":
@@ -361,7 +364,7 @@ export class TranscodingService {
               resolve(true);
               break;
             case "exit":
-              console.log("Process exited with code " + msg.data);
+              self.logger.log("Process exited with code " + msg.data);
               worker.terminate();
               break;
           }
