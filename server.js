@@ -12,7 +12,7 @@ app.use(redirectToHTTPS([/localhost:(\d{4})/], [/\/insecure/], 301));
 
 // send the user the ownership google file
 app.get('/robots.txt', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist/seo/sitemap.xml'));
+  res.sendFile(path.join(__dirname, 'dist/seo/robots.txt'));
 });
 
 // send the user the ownership google file
