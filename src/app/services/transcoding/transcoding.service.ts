@@ -9,6 +9,7 @@ import { isCodecSupported } from 'src/app/utils/utils';
 import { Observable, Subject } from 'rxjs';
 import * as moment from 'moment';
 import { LoggerService } from '../logger/logger.service';
+import { SubtitleTypesEnum } from 'src/app/enums/subtitleTypesEnum';
 
 @Injectable({
   providedIn: 'root'
@@ -373,8 +374,12 @@ export class TranscodingService {
     });
   }
 
-  isFileSupported() {
+  isFileSupported(): boolean {
     return this.canBuildMp4(this._videoStreams, this._audioStreams) || this.canBuildWebm(this._videoStreams, this._audioStreams);
+  }
+
+  isSubtitlesSupported(): boolean {
+    return this.subtitleStreams.some((ss) => ss.type != SubtitleTypesEnum.DVD_SUBTITLE);
   }
 
   // Check if the streams have h264 & AAC streams

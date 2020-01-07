@@ -73,6 +73,10 @@
                                 {{subtitleStream.type}}
                             </option>
                         </select>
+                        <small *ngIf="!isSubtitlesSupported" class="text-warning">
+                            <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                            dvd_subtitle format is not supported: you should add a custom subtitle file.
+                        </small>
                     </div>
                     <div class="form-group">
                         <label for="customSubtitleFile" *ngIf="subtitleStreams && subtitleStreams.length">

@@ -19,6 +19,7 @@ export class SelectFilesModalComponent implements OnInit {
   error: string;
   supportedMessage: string;
   unsupportedMessage: string;
+  isSubtitlesSupported: boolean = false;
   analysisLoading: boolean = false;
   validateLoading: boolean = false;
   transcodingProgress = 0;
@@ -67,10 +68,8 @@ export class SelectFilesModalComponent implements OnInit {
     });
     if (subtitleFile) {
       getSubbtitlePromise = this.transcodingService.convertSubtitlesIfNeeded(subtitleFile);
-      this.transcodingService.convertSubtitlesIfNeeded(subtitleFile);
     } else if (subtitleStream) {
       getSubbtitlePromise = this.transcodingService.extractSubtitleFile(this.videoFile, subtitleStream);
-      this.transcodingService.extractSubtitleFile(this.videoFile, subtitleStream);
     }
 
     getSubbtitlePromise.then((file: File) => {
@@ -137,6 +136,7 @@ export class SelectFilesModalComponent implements OnInit {
     this.optionsForm.disable();
     this.unsupportedMessage = null;
     this.supportedMessage = null
+    this.isSubtitlesSupported = false;
     this.error = null;
     this.audioStreams = [];
     this.videoStreams = []
@@ -152,6 +152,7 @@ export class SelectFilesModalComponent implements OnInit {
       this.videoStreams = this.transcodingService.videoStreams;
       this.audioStreams = this.transcodingService.audioStreams;
       this.subtitleStreams = this.transcodingService.subtitleStreams;
+      this.isSubtitlesSupported = this.transcodingService.isSubtitlesSupported();
       this.setOptionsFormDefaultValues();
     }).catch((err) => {
       this.error = 'There was an error processing the file. This sometimes happens when the file is too big. If the issue remains, please contact support.';
