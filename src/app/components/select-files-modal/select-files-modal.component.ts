@@ -139,7 +139,8 @@ export class SelectFilesModalComponent implements OnInit {
     this.isSubtitlesSupported = false;
     this.error = null;
     this.audioStreams = [];
-    this.videoStreams = []
+    this.videoStreams = [];
+    this.subtitleStreams = [];
 
     this.transcodingService.loadFile(file).then(() => {
       let isSupported = this.transcodingService.isFileSupported();
