@@ -18,6 +18,7 @@ import { DonateComponent } from './components/donate/donate.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CopyClipboardDirective } from './directives/copy-clipboard.directive';
 import { ToastsContainerComponent } from './components/toasts-container/toasts-container.component';
+import { LiveComponent } from './components/live/live.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { ToastsContainerComponent } from './components/toasts-container/toasts-c
     DonateComponent,
     CopyClipboardDirective,
     ToastsContainerComponent,
+    LiveComponent,
   ],
   imports: [
     BrowserModule,

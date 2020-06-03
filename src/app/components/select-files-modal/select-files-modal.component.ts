@@ -81,7 +81,7 @@ export class SelectFilesModalComponent implements OnInit {
 
       // Convert video files depending on the selected streams selected
       // Todo eventually: check if the stream combination is compatible
-      this.transcodingService.transcode(this.videoFile, videoStream, audioStream).then((file: File) => {
+      this.transcodingService.buildCompatibleFile(this.videoFile, videoStream, audioStream).then((file: File) => {
         progressSubscription.unsubscribe();
         this.videoFile = file;
         if (this.subtitlesFile) {

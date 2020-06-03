@@ -68,6 +68,19 @@ let extractSubtitles = (file, index) => {
     return Uint8Array.from(Module.FS.readFile(oPath));
 }
 
+let webmToTs = (file) => {
+    const Module = getModule();
+    const data = new Uint8Array(file.data); // Should be an Uint8Array
+    const iPath = `input.webm`;
+    const oPath = `output.ts`;
+    const ffmpeg = getFFmpeg();
+    const args = [...defaultArgs, ...` -i ${iPath} -preset ultrafast -codec copy ${oPath}`.trim().split(' ')];
+    logger("########## Command line: ##########" + args.join(' '), 'stdout');
+    Module.FS.writeFile(iPath, data);
+    ffmpeg(args.length, strList2ptr(args));
+    return Uint8Array.from(Module.FS.readFile(oPath));
+};
+
 let transcode = (file, videoStreamIndex, videoCodec, audioStreamIndex, audioCodec, outputExtension) => {
     const Module = getModule();
     const data = new Uint8Array(file.data); // Should be an Uint8Array
@@ -128,6 +141,31 @@ onmessage = function (event) {
             message.audioCodec,
             message.outputExtension
         );
+
+        var totalTime = now() - time;
+        postMessage({
+            'type': 'stdout',
+            'data': 'Finished processing (took ' + totalTime + 'ms)'
+        });
+
+        let resultData = {
+            'type': 'done',
+            'data': result.buffer,
+            'time': totalTime
+        };
+        postMessage(resultData, [resultData['data']]);
+    }
+
+    if (message.type === "webmToTs") {
+
+        postMessage({
+            'type': 'stdout',
+            'data': 'Converting webm chunk to ts '
+        });
+
+        var time = now();
+
+        const result = webmToTs(message.file);
 
         var totalTime = now() - time;
         postMessage({

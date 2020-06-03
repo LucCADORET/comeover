@@ -5,6 +5,7 @@ export class UserData {
     isCreator: boolean;
     currentTime: number;
     magnet: string;
+    manifest: string;
     paused: boolean;
     timestamp: number;
 
@@ -19,6 +20,7 @@ export class UserData {
         this.isCreator = data.isCreator;
         this.currentTime = data.currentTime;
         this.magnet = data.magnet;
+        this.manifest = data.manifest;
         this.paused = data.paused;
         this.timestamp = data.timestamp;
     }

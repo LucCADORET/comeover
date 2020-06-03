@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
   ngOnInit() {
   }
 
-  createNewChannel() {
+  createNewChannel(isLive: boolean) {
     this.channelId = uuidv4();
     this.userService.setIsCreator();
     if (this.filesToSeed) {
@@ -37,20 +37,24 @@ export class HomeComponent implements OnInit {
     } else if (this.magnet) {
       this.webTorrentService.magnet = this.magnet;
     }
-    this.joinChannel();
+    this.joinChannel(isLive);
   }
 
   submitChannelId() {
     if (this.channelIdInput.valid && this.channelIdInput.value) {
       this.channelId = this.channelIdInput.value;
-      this.joinChannel();
+      this.joinChannel(false);
     } else {
       this.channelIdInput.setErrors({ 'incorrect': true });
     }
   }
 
-  joinChannel() {
-    this.router.navigate(['/cinema', this.channelId]);
+  joinChannel(isLive: boolean) {
+    if(isLive) {
+      this.router.navigate(['/live', this.channelId]);
+    } else {
+      this.router.navigate(['/cinema', this.channelId]);
+    }
   }
 
   openSelectFilesModal() {
@@ -64,9 +68,13 @@ export class HomeComponent implements OnInit {
     );
     modalRef.result.then(result => {
       this.filesToSeed = result;
-      this.createNewChannel();
+      this.createNewChannel(false);
     }).catch(err => {
       // nothing
     });
+  }
+
+  startLiveStream() {
+    this.createNewChannel(true);
   }
 }
