@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import * as uuidv4 from 'uuid/v4';
 import { UserService } from 'src/app/services/user/user.service';
-import { WebTorrentService } from 'src/app/services/web-torrent/web-torrent.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectFilesModalComponent } from '../select-files-modal/select-files-modal.component';
-import { FormControl, PatternValidator, Validators } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
+import { CinemaService } from '../../services/cinema/cinema.service';
 
 @Component({
   selector: 'app-home',
@@ -22,8 +22,8 @@ export class HomeComponent implements OnInit {
   constructor(
     private router: Router,
     private userService: UserService,
-    private webTorrentService: WebTorrentService,
     private modalService: NgbModal,
+    private cinemaService: CinemaService,
   ) { }
 
   ngOnInit() {
@@ -32,10 +32,10 @@ export class HomeComponent implements OnInit {
   createNewChannel(isLive: boolean) {
     this.channelId = uuidv4();
     this.userService.setIsCreator();
-    if (this.filesToSeed) {
-      this.webTorrentService.filesToSeed = this.filesToSeed;
-    } else if (this.magnet) {
-      this.webTorrentService.magnet = this.magnet;
+
+    // If it's not live, load the files to seed in memory
+    if (!isLive) {
+      this.cinemaService.filesToSeed = this.filesToSeed;
     }
     this.joinChannel(isLive);
   }
@@ -50,7 +50,7 @@ export class HomeComponent implements OnInit {
   }
 
   joinChannel(isLive: boolean) {
-    if(isLive) {
+    if (isLive) {
       this.router.navigate(['/live', this.channelId]);
     } else {
       this.router.navigate(['/cinema', this.channelId]);

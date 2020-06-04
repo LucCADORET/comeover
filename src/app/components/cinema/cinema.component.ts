@@ -8,6 +8,7 @@ import Plyr from 'plyr';
 import { Subscription } from 'rxjs';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { LoggerService } from 'src/app/services/logger/logger.service';
+import { CinemaService } from '../../services/cinema/cinema.service';
 
 @Component({
   selector: 'app-cinema',
@@ -51,6 +52,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     private userService: UserService,
     private toastService: ToastService,
     private logger: LoggerService,
+    private cinemaService: CinemaService,
   ) {
 
   }
@@ -61,10 +63,13 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     this.userId = this.userService.getUserId();
     this.isCreator = this.userService.isUserCreator();
 
-    // The creator creates the torrent
-    // The others will wait on messages to get their version of the torrent 
+    // Start the webtorrent client
+    this.webTorrentService.startClient();
+
     if (this.isCreator) {
-      this.startTorrent();
+
+      // Start seeding the files if you're the creator
+      this.webTorrentService.seedFiles(this.cinemaService.filesToSeed, this.onTorrent.bind(this));
 
       // Show warning message to ask the creator if he is sure to shut down the stream. Note: string will probably be not shown.
       window.onbeforeunload = function (e) {
@@ -138,7 +143,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
         color: this.userService.getColor(),
         isCreator: this.isCreator,
         currentTime: this.getVideoCurrentTime(),
-        magnet: this.webTorrentService.magnet,
+        magnet: this.cinemaService.magnet,
         paused: this.isVideoPaused(),
       });
 
@@ -156,10 +161,10 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     // The creator doesn't synchronize with anyone, and nobody synchronizes with people other than the creator
     if (this.isCreator || !data.isCreator) return;
 
-    // Add the magnet is none is registered yet
-    if (this.webTorrentService.magnet == null) {
-      this.webTorrentService.magnet = data.magnet;
-      this.startTorrent();
+    // If the magnet is not registered: register the magnet and start the torrent
+    if (this.cinemaService.magnet == null) {
+      this.cinemaService.magnet = data.magnet;
+      this.webTorrentService.addTorrent(this.cinemaService.magnet, this.onTorrent.bind(this))
     }
 
     // Set current video time if the shift is too high
@@ -178,14 +183,11 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  startTorrent() {
-    this.webTorrentService.startTorrent(this.onTorrent.bind(this));
-  }
-
   onTorrent(torrent) {
     this.torrentLoading = false;
     this.torrentTimedout = false;
     this.clearLoadingTimeout();
+    this.cinemaService.magnet = torrent.magnetURI;
 
     let self = this;
 

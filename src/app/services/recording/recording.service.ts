@@ -5,6 +5,7 @@ import { TranscodingService } from '../transcoding/transcoding.service';
 import { WebTorrentService } from '../web-torrent/web-torrent.service';
 import { Chunk } from '../../models/chunk';
 import { environment } from '../../../environments/environment';
+import { LiveService } from '../live/live.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,16 +14,11 @@ export class RecordingService {
 
   private source: MediaStream;
   private recorder: MediaRecorder;
-  private chunks: Array<Chunk>;
-  private chunksCount = 3;
   private chunkId = 0;
 
   constructor(
-    private transcodingService: TranscodingService,
-    private webTorrentService: WebTorrentService
-  ) {
-    this.chunks = [];
-  }
+    private liveService: LiveService,
+  ) { }
 
   startRecording(source: MediaStream) {
     this.source = source;
@@ -50,9 +46,8 @@ export class RecordingService {
     if (event.data.size > 0) {
       this.chunkId++;
       let file = this.blobToFile(event.data, `chunk${this.chunkId}.webm`);
-      this.chunks.push(new Chunk(this.chunkId, file));
-      if (this.chunks.length > this.chunksCount) this.chunks.shift();
-      this.webTorrentService.seedChunks(this.chunks);
+      let chunk = new Chunk(this.chunkId, file)
+      this.liveService.addChunk(chunk);
       // var url = URL.createObjectURL(blob);
       // var a = document.createElement("a");
       // document.body.appendChild(a);

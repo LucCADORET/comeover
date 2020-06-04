@@ -6,9 +6,10 @@ import { UserService } from 'src/app/services/user/user.service';
 import { UserData } from 'src/app/models/userData';
 import { Subscription } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger/logger.service';
-import { RecordingService } from '../../services/live/recording.service';
+import { RecordingService } from '../../services/recording/recording.service';
 import * as Hls from 'hls.js'
 import { Chunk } from '../../models/chunk';
+import { LiveService } from '../../services/live/live.service';
 
 @Component({
   selector: 'app-live',
@@ -40,7 +41,8 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     private syncService: SyncService,
     private userService: UserService,
     private logger: LoggerService,
-    private liveService: RecordingService,
+    private recordingService: RecordingService,
+    private liveService: LiveService,
   ) {
 
   }
@@ -52,7 +54,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     this.chunksBuffer = {};
 
     // Start webtorrent client
-    this.startTorrent();
+    this.webTorrentService.startClient();
 
     // The creator creates the torrent
     // The others will wait on messages to get their version of the torrent 
@@ -86,7 +88,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit() {
 
-    // If the user is the creator, we'll just use the display media as what's shown in the video
+    // If the user is the creator, start recording + show what's being recorded to the video elem
     if (this.isCreator) {
       let displayMediaOptions = {
         video: {
@@ -102,10 +104,10 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
         // When video is loaded, start recording
         this.videoElem.nativeElement.onloadedmetadata = () => {
-          this.liveService.startRecording(ms)
+          this.recordingService.startRecording(ms)
 
           // Broadcast user data (with the manifest) whenever the manifest changes
-          this.webTorrentService.manifestSubject.subscribe((manifest: Array<Chunk>) => {
+          this.liveService.manifestSubject.subscribe((manifest: Array<Chunk>) => {
             this.broadcastUserData();
           });
         };
@@ -134,7 +136,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
       username: this.userService.getUsername(),
       color: this.userService.getColor(),
       isCreator: this.isCreator,
-      manifest: this.webTorrentService.manifestSubject.getValue(),
+      manifest: this.liveService.manifestSubject.getValue(),
     });
     this.syncService.broadcastUserData(dataToBroadcast);
   }
@@ -147,7 +149,6 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
     console.log("Received new manifest of size " + data.manifest.length);
 
-
     // Add the received chunks to the buffer if they are not here already
     for (let shortChunk of data.manifest) {
       let existingChunk = this.chunksBuffer[shortChunk.id];
@@ -158,21 +159,17 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     }
 
-    // If no chunk is being downloaded, add this one 
-    // AND If this is a new chunk (not downloaded, and not downloading)
+    // Add chunk torrent if no chunk is being downloaded 
+    // AND if this is a new chunk (not downloaded, and not downloading)
     if (!this.webTorrentService.isDownloading()) {
       for (let chunkId in this.chunksBuffer) {
         let chunk = this.chunksBuffer[chunkId];
-        if (this.webTorrentService.isChunkNew(chunk)) {
+        if (this.webTorrentService.magnetExists(chunk.magnet)) {
           this.addTorrent(chunk.magnet);
           return;
         }
       }
     }
-  }
-
-  startTorrent() {
-    this.webTorrentService.startTorrent(this.onTorrent.bind(this));
   }
 
   addTorrent(magnet: string) {
