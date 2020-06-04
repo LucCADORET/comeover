@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class LiveService {
+export class RecordingService {
 
   private source: MediaStream;
   private recorder: MediaRecorder;
@@ -48,13 +48,11 @@ export class LiveService {
   handleDataAvailable(event: any) {
     console.log("data-available");
     if (event.data.size > 0) {
-      var blob = event.data;
       this.chunkId++;
-      this.transcodingService.webmToTs(blob, this.chunkId).then((file: File) => {
-        this.chunks.push(new Chunk(this.chunkId, file));
-        if (this.chunks.length > this.chunksCount) this.chunks.shift();
-        this.webTorrentService.seedChunks(this.chunks);
-      });
+      let file = this.blobToFile(event.data, `chunk${this.chunkId}.webm`);
+      this.chunks.push(new Chunk(this.chunkId, file));
+      if (this.chunks.length > this.chunksCount) this.chunks.shift();
+      this.webTorrentService.seedChunks(this.chunks);
       // var url = URL.createObjectURL(blob);
       // var a = document.createElement("a");
       // document.body.appendChild(a);
@@ -63,5 +61,12 @@ export class LiveService {
       // a.click();
       // window.URL.revokeObjectURL(url);
     }
+  }
+
+  public blobToFile = (theBlob: Blob, fileName: string): File => {
+    var b: any = theBlob;
+    b.lastModifiedDate = new Date();
+    b.name = fileName;
+    return <File>theBlob;
   }
 }

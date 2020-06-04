@@ -16,12 +16,12 @@ export class WebTorrentService {
 
   // Used for live streaming
   private _chunks: Array<Chunk>;
-  private _manifestSubject: BehaviorSubject<string>;
+  private _manifestSubject: BehaviorSubject<Array<Chunk>>;
 
   private client: any;
 
   constructor() {
-    this._manifestSubject = new BehaviorSubject('');
+    this._manifestSubject = new BehaviorSubject([]);
     this._chunks = [];
   }
 
@@ -37,7 +37,7 @@ export class WebTorrentService {
     this._filesToSeed = files;
   }
 
-  get manifestSubject(): BehaviorSubject<string> {
+  get manifestSubject(): BehaviorSubject<Array<Chunk>> {
     return this._manifestSubject;
   }
 
@@ -54,14 +54,12 @@ export class WebTorrentService {
     }
   }
 
-  destroyClient() {
-    if (this.client) {
-      this.client.destroy();
-    }
+  addTorrent(magnet: string, callback: any) {
+    this.client.add(magnet, callback);
   }
 
-  // Gets all the chunks to seed at the moment
-  // If some chunks are already beeing seeded, it will just keep them as they are
+
+  // Seed the last chunks of recorded data
   seedChunks(chunks: Array<Chunk>) {
     for (let chunk of chunks) {
       let existingChunk = this._chunks.find((c: Chunk) => c.id == chunk.id);
@@ -70,7 +68,8 @@ export class WebTorrentService {
         this.client.seed(chunk.file, (torrent) => {
           chunk.magnet = torrent.magnetURI;
           console.log(`Seeding ${chunk.file.name} with magnet URI ${chunk.magnet}`);
-          this.makeManifest()
+          let manifest = this.makeManifest()
+          this._manifestSubject.next(manifest);
         });
         // Seed this new chunk
       }
@@ -83,12 +82,42 @@ export class WebTorrentService {
     });
   }
 
-  // Make the m3u8 manifest
-  makeManifest() {
-    let manifest = `#EXTM3U\n#EXT-X-VERSION:3\n#EXT-X-TARGETDURATION:${environment.targetDuration}\n#EXT-X-MEDIA-SEQUENCE:${this._chunks[0].id}` // The sequence id of the id of the first chunk of the sequence
-    for (let chunk of this._chunks) {
-      manifest += `\n#EXTINF: ${environment.targetDuration}\n###${chunk.magnet}\n${chunk.file.name}`; // TODO: get exact duration of the chunk
+  // Checks if the client if currently downloading anything
+  isDownloading() {
+    if (!this.client) return false;
+    if (this.client.torrents.length == 0) return false;
+    if (this.client.torrents.some((t: any) => t.done == false)) return true;
+    return false;
+  }
+
+  // Looks through the client's torrents to check if a chunk isn't already in the list of torrents
+  isChunkNew(chunk: Chunk): boolean {
+    if (!this.client) return false;
+    if (this.client.torrents.length == 0) return true;
+    for (let torrent of this.client.torrents) {
+      if (torrent.magnetURI == chunk.magnet) {
+        return false;
+      }
     }
-    this._manifestSubject.next(manifest);
+    return true;
+  }
+
+  // Make the manifest with the magnets URI
+  makeManifest(): any {
+    let shortChunks = [];
+
+    for (let chunk of this._chunks) {
+      shortChunks.push({
+        magnet: chunk.magnet,
+        id: chunk.id,
+      });
+    }
+    return shortChunks;
+  };
+
+  destroyClient() {
+    if (this.client) {
+      this.client.destroy();
+    }
   }
 }

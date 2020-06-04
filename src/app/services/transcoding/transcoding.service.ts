@@ -46,60 +46,6 @@ export class TranscodingService {
 
   /**
    * 
-   * @param webmBlob blob of a webm chunk
-   * @param chunkId id to identify the chunk (used here only to set the file name)
-   */
-  webmToTs(webmBlob: Blob, chunkId: number) {
-    return new Promise((resolve, reject) => {
-
-      // Start worker for the convertion
-      var worker = new Worker("workers/worker-ffmpeg.js");
-      let self = this;
-      worker.onmessage = function (e) {
-        var msg = e.data;
-        if (msg) {
-          switch (msg.type) {
-            case "ready":
-
-              // Wrapping the block into "response" is a hack to get the arrayBuffer method
-              new Response(webmBlob).arrayBuffer().then((buffer: ArrayBuffer) => {
-                console.log(buffer); // TODO: delete
-                let commandData = {
-                  type: "webmToTs",
-                  file: {
-                    data: buffer,
-                  },
-                };
-                worker.postMessage(commandData, [commandData.file.data]);
-              });
-              break;
-            case "stdout":
-              self.logger.log(msg.data + "\n")
-              break;
-            case "stderr":
-              self.logger.log(msg.data);
-              break;
-            case "error":
-              self.logger.error(msg.data + "\n");
-              break;
-            case "done":
-              self._transcodeProgress.next(100);
-              self.logger.log(`Finished processing chunk ${chunkId}`);
-              worker.terminate();
-              resolve(new File([msg.data], `chunk${chunkId}.ts`, { type: 'video/MP2T' }));
-              break;
-            case "exit":
-              self.logger.log("Process exited with code " + msg.data)
-              worker.terminate();
-              break;
-          }
-        }
-      };
-    });
-  }
-
-  /**
-   * 
    * @param file The file to transcode to a format that is readable for the webtorrent seeking player
    * @param videoStream The target video stream of the file (to transcode or adapt)
    * @param audioStream The target audio stream of the file (to transcode or adapt)
