@@ -30,10 +30,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
   userId: string;
   broadcastInterval: any;
   userDataSubscription: Subscription;
-
-  // Buffers for the live streaming
-  chunksBuffer: Record<number, Chunk>;
-  playingChunk: Chunk;
+  mediaSource: MediaSource
 
   constructor(
     private route: ActivatedRoute,
@@ -51,7 +48,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     this.channelId = this.route.snapshot.paramMap.get("channelId");
     this.userId = this.userService.getUserId();
     this.isCreator = this.userService.isUserCreator();
-    this.chunksBuffer = {};
+    this.mediaSource = new MediaSource(); 
 
     // Start webtorrent client
     this.webTorrentService.startClient();
@@ -104,19 +101,17 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
         // When video is loaded, start recording
         this.videoElem.nativeElement.onloadedmetadata = () => {
-          this.recordingService.startRecording(ms)
-
-          // Broadcast user data (with the manifest) whenever the manifest changes
-          this.liveService.manifestSubject.subscribe((manifest: Array<Chunk>) => {
-            this.broadcastUserData();
-          });
+          this.recordingService.startRecording(ms);
         };
       });
     }
 
     // If the use is not the created, we had to set the chunks as video sources as the live goes through
     else {
-      this.videoElem.nativeElement.addEventListener('ended', this.onVideoEnded.bind(this))
+      this.videoElem.nativeElement.addEventListener('ended', () => {
+        console.log("ended event triggered");
+        this.playNextChunk.bind(this);
+      })
     }
   }
 
@@ -136,7 +131,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
       username: this.userService.getUsername(),
       color: this.userService.getColor(),
       isCreator: this.isCreator,
-      manifest: this.liveService.manifestSubject.getValue(),
+      manifest: this.liveService.manifest,
     });
     this.syncService.broadcastUserData(dataToBroadcast);
   }
@@ -149,85 +144,32 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
     console.log("Received new manifest of size " + data.manifest.length);
 
-    // Add the received chunks to the buffer if they are not here already
-    for (let shortChunk of data.manifest) {
-      let existingChunk = this.chunksBuffer[shortChunk.id];
+    this.liveService.setChunksFromManifest(data.manifest);
 
-      // if the chunk is not existing, add it right after the last id
-      if (existingChunk == null) {
-        this.chunksBuffer[shortChunk.id] = shortChunk;
-      }
-    }
-
-    // Add chunk torrent if no chunk is being downloaded 
-    // AND if this is a new chunk (not downloaded, and not downloading)
-    if (!this.webTorrentService.isDownloading()) {
-      for (let chunkId in this.chunksBuffer) {
-        let chunk = this.chunksBuffer[chunkId];
-        if (this.webTorrentService.magnetExists(chunk.magnet)) {
-          this.addTorrent(chunk.magnet);
-          return;
-        }
-      }
-    }
-  }
-
-  addTorrent(magnet: string) {
-    this.webTorrentService.addTorrent(magnet, this.onTorrent.bind(this));
-  }
-
-  onTorrent(torrent) {
-    let self = this;
-    this.logger.log('Got torrent metadata!');
-    let videoFile = torrent.files.find(function (file) {
-      return file.name.endsWith('.webm')
-    });
-    let chunk = this.chunksBuffer[this.getChunkId(videoFile.name)];
-    chunk.file = videoFile;
-
-    // On previous torrent download end, add next chunk (id there is any)
-    torrent.on('done', function () {
-      console.log("Finished downloading chunk " + chunk.id);
-      let nextChunk = self.chunksBuffer[(chunk.id + 1)];
-      if (nextChunk) {
-        console.log("Start downloading new chunk " + nextChunk.id);
-        self.addTorrent(nextChunk.magnet);
-      } else {
-        console.log("No chunk to download in buffer");
-      };
-    });
-
-
-    // If no video is playing, just render the file we are currently downloading
     if (!this.isVideoPlaying()) {
-      this.playChunk(chunk)
+      console.log("Video not playing: gettning next chunk");
+      this.playNextChunk();
     }
   }
 
-  // When the current video chunk ended, play the next chunk
-  onVideoEnded() {
-    console.log(`${this.playingChunk.file.name} ended`)
-    let nextChunk = this.chunksBuffer[(this.playingChunk.id + 1)];
-    console.log(`Loading chunk ${nextChunk.file.name}`)
-    this.playChunk(nextChunk);
-  }
-
-  getChunkId(name: string): number {
-    let match = name.match(/(chunk)(\d+)(\.webm)/);
-    return parseFloat(match[2]);
+  // Get the next chunk to play from the liveService, then plays it
+  playNextChunk() {
+    let chunk = this.liveService.nextChunk();
+    if (chunk) {
+      let self = this
+      chunk.file.getBlobURL((err: any, url: string) => {
+        self.videoElem.nativeElement.src = url;
+        self.videoElem.nativeElement.play().then((_ => {
+          console.log("playback worked");
+        })).catch(_ => {
+          console.log("playback failed");
+        });
+      });
+    }
   }
 
   isVideoPlaying() {
     let video = this.videoElem.nativeElement;
     return !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
-  }
-
-  // Render a chunk to the video element, and set the currently playing chunk as this chunk
-  playChunk(chunk: Chunk) {
-    let opts = null;
-    if (!this.isCreator) opts = { autoplay: true, muted: true, controls: false };
-    else opts = { autoplay: false, muted: false, controls: false };
-    chunk.file.renderTo('video#player', opts);
-    this.playingChunk = chunk;
   }
 }

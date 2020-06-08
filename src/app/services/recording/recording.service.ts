@@ -38,8 +38,9 @@ export class RecordingService {
   }
 
   /**
-   * When data is available from the recorder
-   * @param event envent on data available containing the blob
+   * When data is available from the recorder, we give it to the live service that will
+   * Add it to the chunk buffer + torrent seed it
+   * @param event event on data available containing the blob
    */
   handleDataAvailable(event: any) {
     console.log("data-available");
@@ -47,7 +48,7 @@ export class RecordingService {
       this.chunkId++;
       let file = this.blobToFile(event.data, `chunk${this.chunkId}.webm`);
       let chunk = new Chunk(this.chunkId, file)
-      this.liveService.addChunk(chunk);
+      this.liveService.seedChunk(chunk);
       // var url = URL.createObjectURL(blob);
       // var a = document.createElement("a");
       // document.body.appendChild(a);

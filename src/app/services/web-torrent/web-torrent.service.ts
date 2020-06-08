@@ -30,9 +30,14 @@ export class WebTorrentService {
 
   // Remove a torrent from its magnet URI
   removeTorrent(magnet: string) {
-    this.client.remove(magnet, function () {
-      console.log("Removed torrent " + magnet);
-    });
+    try {
+      this.client.remove(magnet, function () {
+        console.log("Removed torrent " + magnet);
+      });
+    } catch (error) {
+      console.log("Failed removing torrent");
+      return;
+    }
   }
 
 
