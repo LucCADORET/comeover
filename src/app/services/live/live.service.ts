@@ -2,6 +2,10 @@ import { Injectable } from '@angular/core';
 import { Chunk } from '../../models/chunk';
 import { WebTorrentService } from '../web-torrent/web-torrent.service';
 import { LoggerService } from '../logger/logger.service';
+import { SyncService } from '../sync/sync.service';
+import { Subscription } from 'rxjs';
+import { UserService } from '../user/user.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,20 +14,38 @@ export class LiveService {
 
   // Used for live streaming
   private _chunksBuffer: Record<number, Chunk>;
-  private _currentChunk: Chunk; // Currently playing chunk
   private _manifest: Array<Chunk>; // The "manifest" is actually only the last recorded chunks ids and magnets
   private BUFFER_MAX_COUNT = 6;
+  private manifestSubscription: Subscription;
+  private _mediaSource: MediaSource;
+  private _sourceBuffer: SourceBuffer;
 
   constructor(
     private wtService: WebTorrentService,
     private logger: LoggerService,
+    private syncService: SyncService,
+    private userService: UserService,
   ) {
     this._manifest = [];
     this._chunksBuffer = {};
+
+    // Create media source for the stream, and create the source buffer when ready
+    let self = this;
+    this._mediaSource = new MediaSource();
+    this._mediaSource.addEventListener('sourceopen', function () {
+      self._sourceBuffer = self.mediaSource.addSourceBuffer(environment.recordingMimeType);
+      self._sourceBuffer.mode = 'sequence';
+      self._sourceBuffer.addEventListener('error', function (ev) {
+        console.error("Source buffer error ??");
+        console.error(ev);
+      });
+    });
+
+    this.manifestSubscription = this.syncService.getManifestObservable().subscribe(this.onManifest.bind(this));
   }
 
-  get manifest(): Array<Chunk> {
-    return this._manifest;
+  get mediaSource() {
+    return this._mediaSource;
   }
 
   // Add a new chunk from a recorded video file, and seeds it
@@ -32,10 +54,12 @@ export class LiveService {
 
     // Seed the chunk, and record its magnet URI
     this.wtService.seedFiles([chunk.file], (torrent) => {
+      self.appendBlobToBuffer(chunk.file);
       chunk.magnet = torrent.magnetURI;
       this._chunksBuffer[chunk.id] = chunk;
       console.log(`Seeding ${chunk.file.name} with magnet URI ${chunk.magnet}`);
-      this._manifest = this.makeManifest()
+      this._manifest = this.makeManifest();
+      this.syncService.broadcastManifest(this._manifest);
       self.cleanBuffer();
     });
   }
@@ -78,35 +102,6 @@ export class LiveService {
     }
   }
 
-  // If there is no playing chunk, returns the first chunk we have on hand
-  // If there is already a current chunk, returns the next one
-  nextChunk() {
-    let keys = Object.keys(this._chunksBuffer);
-
-    // If there are no playing current chunk, get the first ready chunk
-    if (!this._currentChunk) {
-      for (let index in this._chunksBuffer) {
-        if (this._chunksBuffer[index].isReady()) {
-          this._currentChunk = this._chunksBuffer[keys[0]];
-          console.log("Loading first chunk " + this._currentChunk.file.name);
-          return this._currentChunk;
-        }
-      }
-      console.log("No ready chunk to load");
-      return null;
-    }
-
-    // Else get the next ready chunk
-    else {
-      console.log(`${this._currentChunk.file.name} ended`)
-      let nextChunk = this._chunksBuffer[(this._currentChunk.id + 1)];
-      if (!nextChunk || !nextChunk.isReady()) return null;
-      this._currentChunk = nextChunk;
-      console.log(`Loading chunk ${this._currentChunk.file.name}`)
-      return this._currentChunk;
-    }
-  }
-
   // Make the manifest with the magnets URI
   makeManifest(): any {
     let shortChunks = [];
@@ -132,10 +127,16 @@ export class LiveService {
     let chunk = this._chunksBuffer[this.getChunkId(videoFile.name)];
     chunk.file = videoFile;
 
-    // On previous torrent download end, add next chunk (id there is any)
+    // On previous torrent download end, start downloading next chunk (id there is any)
+    // And add the downloaded buffer to the source buffer
     torrent.on('done', function () {
       console.log("Finished downloading chunk " + chunk.id);
       chunk.setReady();
+      chunk.file.getBlob((err: any, blob: Blob) => {
+        self.appendBlobToBuffer(blob);
+      });
+
+      // Download next chunk if any
       let nextChunk = self._chunksBuffer[(chunk.id + 1)];
       if (nextChunk) {
         console.log("Start downloading new chunk " + nextChunk.id);
@@ -143,11 +144,30 @@ export class LiveService {
       } else {
         console.log("No chunk to download in buffer");
       };
+
     });
+  }
+
+  appendBlobToBuffer(blob: Blob) {
+
+    // We call the arrayBuffer in this dirty way, since typescript doesn't have all the types for blob
+    blob['arrayBuffer']().then((buffer: ArrayBuffer) => {
+      this._sourceBuffer.appendBuffer(buffer)
+    });
+    // Event for view to play video ?
   }
 
   getChunkId(name: string): number {
     let match = name.match(/(chunk)(\d+)(\.webm)/);
     return parseFloat(match[2]);
+  }
+
+  onManifest(data: Array<Chunk>) {
+    console.log("Received new manifest of size " + data.length);
+
+    // If the user is not the creator, we have to download the chunks
+    if (!this.userService.isUserCreator()) {
+      this.setChunksFromManifest(data);
+    }
   }
 }

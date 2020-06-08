@@ -30,7 +30,6 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
   userId: string;
   broadcastInterval: any;
   userDataSubscription: Subscription;
-  mediaSource: MediaSource
 
   constructor(
     private route: ActivatedRoute,
@@ -48,7 +47,6 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     this.channelId = this.route.snapshot.paramMap.get("channelId");
     this.userId = this.userService.getUserId();
     this.isCreator = this.userService.isUserCreator();
-    this.mediaSource = new MediaSource(); 
 
     // Start webtorrent client
     this.webTorrentService.startClient();
@@ -85,6 +83,9 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit() {
 
+    // Add the media source as source of the video elem
+    this.videoElem.nativeElement.src = URL.createObjectURL(this.liveService.mediaSource);
+
     // If the user is the creator, start recording + show what's being recorded to the video elem
     if (this.isCreator) {
       let displayMediaOptions = {
@@ -97,21 +98,13 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Capture the user media
       mediaDevices.getDisplayMedia(displayMediaOptions).then((ms: MediaStream) => {
-        this.videoElem.nativeElement.srcObject = ms;
+        // this.videoElem.nativeElement.srcObject = ms;
 
         // When video is loaded, start recording
-        this.videoElem.nativeElement.onloadedmetadata = () => {
-          this.recordingService.startRecording(ms);
-        };
+        // this.videoElem.nativeElement.onloadedmetadata = () => {
+        // };
+        this.recordingService.startRecording(ms);
       });
-    }
-
-    // If the use is not the created, we had to set the chunks as video sources as the live goes through
-    else {
-      this.videoElem.nativeElement.addEventListener('ended', () => {
-        console.log("ended event triggered");
-        this.playNextChunk.bind(this);
-      })
     }
   }
 
@@ -131,7 +124,6 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
       username: this.userService.getUsername(),
       color: this.userService.getColor(),
       isCreator: this.isCreator,
-      manifest: this.liveService.manifest,
     });
     this.syncService.broadcastUserData(dataToBroadcast);
   }
@@ -141,33 +133,9 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // The creator doesn't synchronize with anyone, and nobody synchronizes with people other than the creator
     if (this.isCreator || !data.isCreator) return;
-
-    console.log("Received new manifest of size " + data.manifest.length);
-
-    this.liveService.setChunksFromManifest(data.manifest);
-
-    if (!this.isVideoPlaying()) {
-      console.log("Video not playing: gettning next chunk");
-      this.playNextChunk();
-    }
   }
 
-  // Get the next chunk to play from the liveService, then plays it
-  playNextChunk() {
-    let chunk = this.liveService.nextChunk();
-    if (chunk) {
-      let self = this
-      chunk.file.getBlobURL((err: any, url: string) => {
-        self.videoElem.nativeElement.src = url;
-        self.videoElem.nativeElement.play().then((_ => {
-          console.log("playback worked");
-        })).catch(_ => {
-          console.log("playback failed");
-        });
-      });
-    }
-  }
-
+  // Utility function to check if the video is playing or not
   isVideoPlaying() {
     let video = this.videoElem.nativeElement;
     return !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
