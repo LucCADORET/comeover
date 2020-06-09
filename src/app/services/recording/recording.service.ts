@@ -10,7 +10,7 @@ import { LiveService } from '../live/live.service';
 })
 export class RecordingService {
 
-  private source: MediaStream;
+  private _mediaStream: MediaStream;
   private recorder: MediaRecorder;
   private chunkId = 0;
 
@@ -18,11 +18,13 @@ export class RecordingService {
     private liveService: LiveService,
   ) { }
 
-  startRecording(source: MediaStream) {
-    this.source = source;
+  set mediaStream(ms: MediaStream) {
+    this._mediaStream = ms;
+  }
 
+  startRecording() {
     let options = { mimeType: environment.recordingMimeType };
-    this.recorder = new MediaRecorder(this.source, options);
+    this.recorder = new MediaRecorder(this._mediaStream, options);
     this.recorder.ondataavailable = this.handleDataAvailable.bind(this);
     this.startChunkRecording();
   }

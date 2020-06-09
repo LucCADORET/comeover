@@ -42,6 +42,7 @@ export class LiveService {
     });
 
     this.manifestSubscription = this.syncService.getManifestObservable().subscribe(this.onManifest.bind(this));
+    // TODO: unsubscribe at some point
   }
 
   get mediaSource() {

@@ -7,7 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CinemaComponent } from './components/cinema/cinema.component';
 import { HomeComponent } from './components/home/home.component';
-import { SelectFilesModalComponent } from './components/select-files-modal/select-files-modal.component';
+import { SelectFileComponent } from './components/select-file/select-file.component';
 import { SocialComponent } from './components/social/social.component';
 import { UserSettingsModalComponent } from './components/user-settings-modal/user-settings-modal.component';
 import { ColorPickerComponent } from './components/color-picker/color-picker.component';
@@ -19,6 +19,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CopyClipboardDirective } from './directives/copy-clipboard.directive';
 import { ToastsContainerComponent } from './components/toasts-container/toasts-container.component';
 import { LiveComponent } from './components/live/live.component';
+import { SelectModeModalComponent } from './components/select-mode-modal/select-mode-modal.component';
+import { SelectSourceComponent } from './components/select-source/select-source.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +28,7 @@ import { LiveComponent } from './components/live/live.component';
     CinemaComponent,
     HomeComponent,
     SocialComponent,
-    SelectFilesModalComponent,
+    SelectFileComponent,
     UserSettingsModalComponent,
     ColorPickerComponent,
     BytesPipe,
@@ -36,6 +38,8 @@ import { LiveComponent } from './components/live/live.component';
     CopyClipboardDirective,
     ToastsContainerComponent,
     LiveComponent,
+    SelectModeModalComponent,
+    SelectSourceComponent,
   ],
   imports: [
     BrowserModule,
@@ -47,7 +51,7 @@ import { LiveComponent } from './components/live/live.component';
   providers: [],
   bootstrap: [AppComponent],
   entryComponents: [
-    SelectFilesModalComponent,
+    SelectModeModalComponent,
     UserSettingsModalComponent,
   ]
 })

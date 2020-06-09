@@ -3,9 +3,12 @@ import { Router } from '@angular/router';
 import * as uuidv4 from 'uuid/v4';
 import { UserService } from 'src/app/services/user/user.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { SelectFilesModalComponent } from '../select-files-modal/select-files-modal.component';
 import { FormControl, Validators } from '@angular/forms';
 import { CinemaService } from '../../services/cinema/cinema.service';
+import { SelectModeModalComponent } from '../select-mode-modal/select-mode-modal.component';
+import { SelectModeResult } from '../../models/selectModeResult';
+import { ModesEnum } from '../../enums/modesEnum';
+import { RecordingService } from '../../services/recording/recording.service';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +19,6 @@ export class HomeComponent implements OnInit {
 
   channelId: string = "";
   magnet: string = "";
-  filesToSeed: File[] = null;
   channelIdInput = new FormControl('', Validators.pattern(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i));
 
   constructor(
@@ -24,57 +26,43 @@ export class HomeComponent implements OnInit {
     private userService: UserService,
     private modalService: NgbModal,
     private cinemaService: CinemaService,
+    private recordingService: RecordingService,
   ) { }
 
-  ngOnInit() {
-  }
+  ngOnInit() { }
 
-  createNewChannel(isLive: boolean) {
+  createNewChannel(result: SelectModeResult) {
     this.channelId = uuidv4();
     this.userService.setIsCreator();
 
-    // If it's not live, load the files to seed in memory
-    if (!isLive) {
-      this.cinemaService.filesToSeed = this.filesToSeed;
-    }
-    this.joinChannel(isLive);
-  }
-
-  submitChannelId() {
-    if (this.channelIdInput.valid && this.channelIdInput.value) {
-      this.channelId = this.channelIdInput.value;
-      this.joinChannel(false);
-    } else {
-      this.channelIdInput.setErrors({ 'incorrect': true });
-    }
-  }
-
-  joinChannel(isLive: boolean) {
-    if (isLive) {
-      this.router.navigate(['/live', this.channelId]);
-    } else {
+    // Not live: just set the files to seed in the cinema service
+    if (result.mode == ModesEnum.FILE) {
+      this.cinemaService.filesToSeed = result.data as File[];
       this.router.navigate(['/cinema', this.channelId]);
     }
+
+    // Live: set the mediastream source in the recording service
+    else if (result.mode == ModesEnum.LIVE) {
+      this.recordingService.mediaStream = result.data as MediaStream;
+      this.router.navigate(['/live', this.channelId]);
+    }
   }
 
-  openSelectFilesModal() {
+  openSelectModeModal() {
     const modalRef = this.modalService.open(
-      SelectFilesModalComponent,
+      SelectModeModalComponent,
       {
         size: "lg",
         backdrop: "static",
-        keyboard: false
+        keyboard: false,
+        centered: true,
       }
     );
-    modalRef.result.then(result => {
-      this.filesToSeed = result;
-      this.createNewChannel(false);
+
+    modalRef.result.then((result: SelectModeResult) => {
+      this.createNewChannel(result);
     }).catch(err => {
       // nothing
     });
-  }
-
-  startLiveStream() {
-    this.createNewChannel(true);
   }
 }

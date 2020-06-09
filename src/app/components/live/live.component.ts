@@ -87,18 +87,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // If the user is the creator, start recording + show what's being recorded to the video elem
     if (this.isCreator) {
-      let displayMediaOptions = {
-        video: {
-          cursor: "always"
-        },
-        audio: true
-      };
-      const mediaDevices = navigator.mediaDevices as any; // Workaround for typescript warning
-
-      // Capture the user media
-      mediaDevices.getDisplayMedia(displayMediaOptions).then((ms: MediaStream) => {
-        this.recordingService.startRecording(ms);
-      });
+      this.recordingService.startRecording();
     }
 
     // Determine controls depending on if the user is the creator or not

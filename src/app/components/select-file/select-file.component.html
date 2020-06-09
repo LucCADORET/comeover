@@ -1,0 +1,120 @@
+<form>
+    <div class="form-group row">
+        <div class="col">
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="customFile"
+                    (change)="handleVideoFileInput($event.target.files)"
+                    [disabled]="analysisLoading || validateLoading">
+                <label class="custom-file-label" for="customFile">{{videoFile ? videoFile.name : 'Choose file'}}</label>
+            </div><br>
+            <small class="text-success" *ngIf="supportedMessage"><i class="fas fa-check-circle"></i>&nbsp;
+                {{supportedMessage}}
+            </small>
+            <small class="text-warning" *ngIf="unsupportedMessage">
+                <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                {{unsupportedMessage}}
+            </small>
+        </div>
+    </div>
+    <div *ngIf="analysisLoading">
+        <i class="fas fa-spinner fa-spin mr-2"></i>Analysing file...<br>
+    </div>
+    <div *ngIf="videoFile" class="row mb-3">
+        <div class="col">
+            <button class="btn btn-link" *ngIf="!showAdvancedOptions" (click)="showAdvancedOptions = true">
+                Show advanced options&nbsp;<i class="fas fa-angle-right"></i>
+            </button>
+            <button class="btn btn-link" *ngIf="showAdvancedOptions" (click)="showAdvancedOptions = false">
+                Hide advanced options&nbsp;<i class="fas fa-angle-down"></i>
+            </button>
+            <form *ngIf="showAdvancedOptions" [formGroup]="optionsForm">
+                <div class="form-group">
+                    <label for="selectVideoStream">Video</label>
+                    <select [disabled]="analysisLoading || validateLoading" class="form-control" id="selectVideoStream"
+                        formControlName="videoStreamControl">
+                        <option [ngValue]="videoStream" *ngFor="let videoStream of videoStreams">
+                            Video Stream #{{videoStream.index}}: {{videoStream.codec}}
+                        </option>
+                    </select>
+                    <small
+                        *ngIf="optionsForm.get('videoStreamControl').invalid && optionsForm.get('videoStreamControl').errors.invalidCodec"
+                        class="text-warning">
+                        This track will need transcoding.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="selectAudioStream">Audio</label>
+                    <select [disabled]="analysisLoading || validateLoading" class="form-control" id="selectAudioStream"
+                        formControlName="audioStreamControl">
+                        <option [ngValue]="audioStream" *ngFor="let audioStream of audioStreams">
+                            Audio Stream #{{audioStream.index}} {{audioStream.language}}:
+                            {{audioStream.codec}}
+                        </option>
+                    </select>
+                    <small
+                        *ngIf="optionsForm.get('audioStreamControl').invalid && optionsForm.get('audioStreamControl').errors.invalidCodec"
+                        class="text-warning">
+                        This track will need transcoding.
+                    </small>
+                </div>
+                <div class="form-group" *ngIf="subtitleStreams && subtitleStreams.length">
+                    <label for="selectSubtitleStream">Subtitle</label>
+                    <select class="form-control" id="selectSubtitleStream" formControlName="subtitleStreamControl">
+                        <option [ngValue]="subtitleStream" *ngFor="let subtitleStream of subtitleStreams">
+                            Subtitle Stream #{{subtitleStream.index}} {{subtitleStream.language}}:
+                            {{subtitleStream.type}}
+                        </option>
+                    </select>
+                    <small *ngIf="!isSubtitlesSupported" class="text-warning">
+                        <i class="fas fa-exclamation-triangle"></i>&nbsp;
+                        dvd_subtitle format is not supported: you should add a custom subtitle file.
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="customSubtitleFile" *ngIf="subtitleStreams && subtitleStreams.length">
+                        Or use custom subtitle file
+                    </label>
+                    <label for="customSubtitleFile" *ngIf="!(subtitleStreams && subtitleStreams.length)">Custom
+                        subtitle
+                        file
+                    </label>
+                    <div class="custom-file" id="customSubtitleFile">
+                        <input type="file" class="custom-file-input" id="customFile"
+                            (change)="handleSubtitlesFileInput($event.target.files)"
+                            formControlName="subtitleFileControl">
+                        <label class="custom-file-label"
+                            for="customFile">{{subtitlesFile ? subtitlesFile.name : 'Choose file'}}</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</form>
+<div class="row mb-3" *ngIf="validateLoading">
+    <div class="col">
+        <div class="row">
+            <div class="col">
+                <i class="fas fa-spinner fa-spin mr-2"></i>Prepping the file for streaming...<br>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <ngb-progressbar type="info" [value]="transcodingProgress" [striped]="true" [animated]="true">
+                    {{transcodingProgress}}%
+                </ngb-progressbar>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" *ngIf="error">
+    <div class="col">
+        <div class="alert alert-danger">{{error}}</div>
+    </div>
+</div>
+<div class="row">
+    <div class="col d-flex justify-content-end">
+        <button type="button" class="btn btn-success" (click)="validate()" [disabled]="!videoFile || validateLoading">
+            <i class="fas fa-spinner fa-spin mr-2" *ngIf="validateLoading"></i>Validate
+        </button>
+    </div>
+</div>

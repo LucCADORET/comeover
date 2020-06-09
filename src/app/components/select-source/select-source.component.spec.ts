@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SelectFilesModalComponent } from './select-files-modal.component';
+import { SelectSourceComponent } from './select-source.component';
 
-describe('SelectFilesModalComponent', () => {
-  let component: SelectFilesModalComponent;
-  let fixture: ComponentFixture<SelectFilesModalComponent>;
+describe('SelectSourceComponent', () => {
+  let component: SelectSourceComponent;
+  let fixture: ComponentFixture<SelectSourceComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SelectFilesModalComponent ]
+      declarations: [ SelectSourceComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SelectFilesModalComponent);
+    fixture = TestBed.createComponent(SelectSourceComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

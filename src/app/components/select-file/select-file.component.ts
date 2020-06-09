@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { TranscodingService } from 'src/app/services/transcoding/transcoding.service';
 import { VideoStream } from 'src/app/models/videoStream';
 import { AudioStream } from 'src/app/models/audioStream';
@@ -8,11 +7,11 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { codecValidator } from 'src/app/validators/codec.validator';
 
 @Component({
-  selector: 'app-select-files-modal',
-  templateUrl: './select-files-modal.component.html',
-  styleUrls: ['./select-files-modal.component.scss']
+  selector: 'app-select-file',
+  templateUrl: './select-file.component.html',
+  styleUrls: ['./select-file.component.scss']
 })
-export class SelectFilesModalComponent implements OnInit {
+export class SelectFileComponent implements OnInit {
 
   videoFile: File;
   subtitlesFile: File;
@@ -30,9 +29,10 @@ export class SelectFilesModalComponent implements OnInit {
   subtitleStreams: Array<SubtitleStream> = [];
 
   optionsForm: FormGroup;
+  @Output() files: EventEmitter<Array<File>>;
+
 
   constructor(
-    public activeModal: NgbActiveModal,
     private transcodingService: TranscodingService,
     private formBuilder: FormBuilder
   ) {
@@ -42,6 +42,7 @@ export class SelectFilesModalComponent implements OnInit {
       subtitleStreamControl: [null],
       subtitleFileControl: [null],
     });
+    this.files = new EventEmitter<Array<File>>();
   }
 
   ngOnInit() { }
@@ -85,9 +86,9 @@ export class SelectFilesModalComponent implements OnInit {
         progressSubscription.unsubscribe();
         this.videoFile = file;
         if (this.subtitlesFile) {
-          this.activeModal.close([this.videoFile, this.subtitlesFile]);
+          this.files.emit([this.videoFile, this.subtitlesFile]);
         } else {
-          this.activeModal.close([this.videoFile]);
+          this.files.emit([this.videoFile]);
         }
       }).catch((err) => {
         progressSubscription.unsubscribe();
