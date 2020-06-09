@@ -1,3 +1,5 @@
+import { Chunk } from './chunk';
+
 export class UserData {
     userId: string;
     username: string;

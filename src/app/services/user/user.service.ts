@@ -11,7 +11,8 @@ export class UserService {
   private userId: string;
   private username: string;
   private color: string;
-  private isCreator: boolean = false;
+  private isCreator: boolean = false; // Creator of the room
+  private isLive: boolean = false; // Is the live stream caster
 
   constructor(colorsService: ColorsService) {
 
@@ -36,7 +37,7 @@ export class UserService {
   public isUserCreator(): boolean {
     return this.isCreator;
   }
-
+  
   public getUsername(): string {
     return this.username;
   }

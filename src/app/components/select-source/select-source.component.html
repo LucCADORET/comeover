@@ -1,0 +1,27 @@
+<div class="row">
+    <div class="col">
+        <div class="alert alert-warning">
+            The live functionality is using newly developed components of the browsers ! It might not be
+            compatible with your browser, or your OS.
+            You can check the compatibility table <a
+                href="https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getDisplayMedia#Browser_compatibility">here</a>.
+            It is recommended <b>for the streamer</b> to use <b>Chrome</b> on <b>Windows</b>, otherwise audio might not
+            be captured.
+            <b>Don't forget to also capture the audio when selecting the device/window to start the live
+                from.</b>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="alert alert-warning">
+            Due to the nature of the live functionality, there is an approximative <b>30 secondes delay</b>
+            between the capture and the actual broadcast. This should be improved in the future.
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col d-flex justify-content-center">
+        <button class="btn btn-primary" (click)="selectSource()">Select source</button>
+    </div>
+</div>

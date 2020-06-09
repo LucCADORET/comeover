@@ -44,8 +44,13 @@ export class TranscodingService {
     return this._transcodeProgress.asObservable();
   }
 
-  // If file has mkv format, it will perform a convertion
-  transcode(file: File, videoStream: VideoStream, audioStream: AudioStream): Promise<File> {
+  /**
+   * 
+   * @param file The file to transcode to a format that is readable for the webtorrent seeking player
+   * @param videoStream The target video stream of the file (to transcode or adapt)
+   * @param audioStream The target audio stream of the file (to transcode or adapt)
+   */
+  buildCompatibleFile(file: File, videoStream: VideoStream, audioStream: AudioStream): Promise<File> {
 
     // Reset progress
     this._transcodeProgress.next(0);
