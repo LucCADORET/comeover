@@ -1,2 +1,52 @@
-<video id="player" autoplay #videoElem>
-</video>
+<div class="d-flex flex-row mt-3" *ngIf="torrentLoading">
+    <div class="col">
+        <i class="fas fa-spinner fa-spin mr-2"></i>Loading stream...<br>
+        <small>
+            <span class="text-danger" *ngIf="torrentTimedout">It is abnormally slow. This may be
+                caused by
+                the following:
+                <ul>
+                    <li>This room doesn't exist anymore (the host(s) left)</li>
+                    <li>The room ID is wrong</li>
+                    <li>A bad download bandwidth from you</li>
+                    <li>A bad upload bandwidth from the room host(s)</li>
+                    <li>You are too far away from the room host(s)</li>
+                </ul>
+            </span>
+        </small>
+    </div>
+</div>
+
+<div class="d-flex flex-row mt-3" id="player-social-wrapper">
+    <div class="player-wrapper">
+        <div class="disabling-overlay" *ngIf="torrentLoading"></div>
+        <video id="player" autoplay #videoElem> </video>
+    </div>
+    <app-social class="d-flex flex-column ml-3"></app-social>
+</div>
+
+<div class="row mt-3">
+    <div class="col">
+        <div class="form-inline">
+            <div class="form-group row">
+                <div class="col-auto">
+                    <label><small>Stream URL</small></label>
+                </div>
+                <div class="col-auto">
+                    <input type="text" class="form-control form-control-sm" [value]="shareURL" readonly>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-link btn-sm" [copy-clipboard]="shareURL"
+                        (copied)="notifyShareURLCopied($event)">
+                        <i class="fas fa-copy"></i>&nbsp;Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Torrent info-->
+<!--TODO: show more torrenting info, about the chunks being seeded, leeched etc.-->
+
+<app-toasts-container aria-live="polite" aria-atomic="true"></app-toasts-container>

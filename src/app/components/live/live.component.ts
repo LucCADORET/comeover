@@ -7,9 +7,8 @@ import { UserData } from 'src/app/models/userData';
 import { Subscription } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger/logger.service';
 import { RecordingService } from '../../services/recording/recording.service';
-import * as Hls from 'hls.js'
-import { Chunk } from '../../models/chunk';
 import { LiveService } from '../../services/live/live.service';
+import Plyr from 'plyr';
 
 @Component({
   selector: 'app-live',
@@ -98,14 +97,29 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Capture the user media
       mediaDevices.getDisplayMedia(displayMediaOptions).then((ms: MediaStream) => {
-        // this.videoElem.nativeElement.srcObject = ms;
-
-        // When video is loaded, start recording
-        // this.videoElem.nativeElement.onloadedmetadata = () => {
-        // };
         this.recordingService.startRecording(ms);
       });
     }
+
+    // Determine controls depending on if the user is the creator or not
+    let opts = {}
+    opts = {
+      controls: ['mute', 'volume', 'fullscreen'],
+      clickToPlay: false,
+      keyboard: { focused: false, global: false },
+    }
+    let player = new Plyr(this.videoElem.nativeElement, opts);
+    let self = this;
+    player.on('ready', event => {
+      self.player = event.detail.plyr;
+      if (self.isCreator) {
+        self.player.volume = 1;
+        self.player.muted = false;
+      } else {
+        self.player.volume = 1;
+        self.player.muted = true;
+      }
+    });
   }
 
   // Broadcast the current time of the stream
