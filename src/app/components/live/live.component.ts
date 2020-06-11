@@ -87,7 +87,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
     // If the user is the creator, start recording + show what's being recorded to the video elem
     if (this.isCreator) {
-      this.recordingService.startRecording();
+      this.liveService.startLive();
     }
 
     // Determine controls depending on if the user is the creator or not

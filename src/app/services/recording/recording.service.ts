@@ -4,29 +4,30 @@ import { Injectable } from '@angular/core';
 import { Chunk } from '../../models/chunk';
 import { environment } from '../../../environments/environment';
 import { LiveService } from '../live/live.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecordingService {
 
-  private _mediaStream: MediaStream;
   private recorder: MediaRecorder;
   private chunkId = 0;
+  private _chunkSubject: Subject<Chunk>;
 
-  constructor(
-    private liveService: LiveService,
-  ) { }
+  constructor() { }
 
-  set mediaStream(ms: MediaStream) {
-    this._mediaStream = ms;
+  get chunkSubject() {
+    return this._chunkSubject;
   }
 
-  startRecording() {
-    let options = { mimeType: environment.recordingMimeType };
-    this.recorder = new MediaRecorder(this._mediaStream, options);
+  // Starts recording, and returns the MIME type of the recording
+  startRecording(ms: MediaStream): string {
+    let options = { };
+    this.recorder = new MediaRecorder(ms, options);
     this.recorder.ondataavailable = this.handleDataAvailable.bind(this);
     this.startChunkRecording();
+    return this.recorder.mimeType;
   }
 
   startChunkRecording() {
@@ -46,14 +47,14 @@ export class RecordingService {
     console.log("data-available");
     if (event.data.size > 0) {
       this.chunkId++;
-      let file = this.blobToFile(event.data, `chunk${this.chunkId}.webm`);
+      let file = this.blobToFile(event.data, `chunk${this.chunkId}`);
       let chunk = new Chunk(this.chunkId, file)
-      this.liveService.seedChunk(chunk);
+      this.chunkSubject.next(chunk);
       // var url = URL.createObjectURL(event.data);
       // var a = document.createElement("a");
       // document.body.appendChild(a);
       // a.href = url;
-      // a.download = `test${this.chunkId}.webm`;
+      // a.download = `test${this.chunkId}`;
       // a.click();
       // window.URL.revokeObjectURL(url);
     }

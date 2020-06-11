@@ -8,7 +8,7 @@ import { CinemaService } from '../../services/cinema/cinema.service';
 import { SelectModeModalComponent } from '../select-mode-modal/select-mode-modal.component';
 import { SelectModeResult } from '../../models/selectModeResult';
 import { ModesEnum } from '../../enums/modesEnum';
-import { RecordingService } from '../../services/recording/recording.service';
+import { LiveService } from 'src/app/services/live/live.service';
 
 @Component({
   selector: 'app-home',
@@ -26,7 +26,7 @@ export class HomeComponent implements OnInit {
     private userService: UserService,
     private modalService: NgbModal,
     private cinemaService: CinemaService,
-    private recordingService: RecordingService,
+    private liveService: LiveService,
   ) { }
 
   ngOnInit() { }
@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit {
 
     // Live: set the mediastream source in the recording service
     else if (result.mode == ModesEnum.LIVE) {
-      this.recordingService.mediaStream = result.data as MediaStream;
+      this.liveService.mediaStream = result.data as MediaStream;
       this.router.navigate(['/live', this.channelId]);
     }
   }

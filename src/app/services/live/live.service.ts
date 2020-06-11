@@ -6,6 +6,7 @@ import { SyncService } from '../sync/sync.service';
 import { Subscription } from 'rxjs';
 import { UserService } from '../user/user.service';
 import { environment } from '../../../environments/environment';
+import { RecordingService } from '../recording/recording.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,30 +20,46 @@ export class LiveService {
   private manifestSubscription: Subscription;
   private _mediaSource: MediaSource;
   private _sourceBuffer: SourceBuffer;
+  private _mediaStream: MediaStream;
 
   constructor(
     private wtService: WebTorrentService,
     private logger: LoggerService,
     private syncService: SyncService,
     private userService: UserService,
+    private recordingService: RecordingService,
   ) {
     this._manifest = [];
     this._chunksBuffer = {};
+
+    // Subscribe to newly recorded chunks
+    this.recordingService.chunkSubject.subscribe((chunk: Chunk) => {
+      this.seedChunk(chunk);
+    });
+
+    this.manifestSubscription = this.syncService.getManifestObservable().subscribe(this.onManifest.bind(this));
+    // TODO: unsubscribe at some point
+  }
+
+  set mediaStream(ms:MediaStream) {
+    this._mediaStream = ms;
+  }
+
+  startLive(): MediaSource {
+    let mimeType = this.recordingService.startRecording(this._mediaStream);
 
     // Create media source for the stream, and create the source buffer when ready
     let self = this;
     this._mediaSource = new MediaSource();
     this._mediaSource.addEventListener('sourceopen', function () {
-      self._sourceBuffer = self.mediaSource.addSourceBuffer(environment.recordingMimeType);
+      self._sourceBuffer = self.mediaSource.addSourceBuffer(mimeType);
       self._sourceBuffer.mode = 'sequence';
       self._sourceBuffer.addEventListener('error', function (ev) {
         console.error("Source buffer error ??");
         console.error(ev);
       });
     });
-
-    this.manifestSubscription = this.syncService.getManifestObservable().subscribe(this.onManifest.bind(this));
-    // TODO: unsubscribe at some point
+    return this._mediaSource;
   }
 
   get mediaSource() {
@@ -122,9 +139,7 @@ export class LiveService {
   onTorrent(torrent) {
     let self = this;
     this.logger.log('Got torrent metadata!');
-    let videoFile = torrent.files.find(function (file) {
-      return file.name.endsWith('.webm')
-    });
+    let videoFile = torrent.files[0];
     let chunk = this._chunksBuffer[this.getChunkId(videoFile.name)];
     chunk.file = videoFile;
 
@@ -153,13 +168,14 @@ export class LiveService {
 
     // We call the arrayBuffer in this dirty way, since typescript doesn't have all the types for blob
     blob['arrayBuffer']().then((buffer: ArrayBuffer) => {
+      console.log("Adding new chunk to buffer !");
       this._sourceBuffer.appendBuffer(buffer)
     });
     // Event for view to play video ?
   }
 
   getChunkId(name: string): number {
-    let match = name.match(/(chunk)(\d+)(\.webm)/);
+    let match = name.match(/(chunk)(\d+)/);
     return parseFloat(match[2]);
   }
 
