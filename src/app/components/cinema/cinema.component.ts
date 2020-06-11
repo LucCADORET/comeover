@@ -5,7 +5,7 @@ import { SyncService } from 'src/app/services/sync/sync.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { UserData } from 'src/app/models/userData';
 import Plyr from 'plyr';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { LoggerService } from 'src/app/services/logger/logger.service';
 import { CinemaService } from '../../services/cinema/cinema.service';
@@ -34,6 +34,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
   torrentLoadingTimeout: any;
   broadcastInterval: any;
   userDataSubscription: Subscription;
+  mediaSourceSubject: Subject<MediaSource>;
 
   // Some torrent metadata
   progress: number = 0;
@@ -54,7 +55,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     private logger: LoggerService,
     private cinemaService: CinemaService,
   ) {
-
+    this.mediaSourceSubject = new Subject<MediaSource>();
   }
 
   ngOnInit() {

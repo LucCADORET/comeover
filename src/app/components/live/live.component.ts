@@ -45,7 +45,6 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     private syncService: SyncService,
     private userService: UserService,
     private logger: LoggerService,
-    private recordingService: RecordingService,
     private liveService: LiveService,
     private toastService: ToastService,
   ) {
@@ -100,13 +99,15 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit() {
 
-    // Add the media source as source of the video elem
-    this.videoElem.nativeElement.src = URL.createObjectURL(this.liveService.mediaSource);
-
     // If the user is the creator, start recording + show what's being recorded to the video elem
     if (this.isCreator) {
       this.liveService.startLive();
     }
+
+    // Subscribe to the media source subject to get an update once the media source is ready
+    this.liveService.mediaSourceSubject.subscribe((ms: MediaSource) => {
+      this.videoElem.nativeElement.src = URL.createObjectURL(ms);
+    });
 
     // Determine controls depending on if the user is the creator or not
     let opts = {}

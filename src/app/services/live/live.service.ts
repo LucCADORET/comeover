@@ -3,9 +3,8 @@ import { Chunk } from '../../models/chunk';
 import { WebTorrentService } from '../web-torrent/web-torrent.service';
 import { LoggerService } from '../logger/logger.service';
 import { SyncService } from '../sync/sync.service';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
 import { UserService } from '../user/user.service';
-import { environment } from '../../../environments/environment';
 import { RecordingService } from '../recording/recording.service';
 
 @Injectable({
@@ -17,10 +16,10 @@ export class LiveService {
   private _chunksBuffer: Record<number, Chunk>;
   private _manifest: Array<Chunk>; // The "manifest" is actually only the last recorded chunks ids and magnets
   private BUFFER_MAX_COUNT = 6;
-  private manifestSubscription: Subscription;
   private _mediaSource: MediaSource;
   private _sourceBuffer: SourceBuffer;
   private _mediaStream: MediaStream;
+  private _mediaSourceSubject: Subject<MediaSource>;
 
   constructor(
     private wtService: WebTorrentService,
@@ -37,29 +36,43 @@ export class LiveService {
       this.seedChunk(chunk);
     });
 
-    this.manifestSubscription = this.syncService.getManifestObservable().subscribe(this.onManifest.bind(this));
-    // TODO: unsubscribe at some point
+    // The media source subject is made to notify the view when the media source is ready
+    this._mediaSourceSubject = new Subject<MediaSource>();
+
+    // Subscribe to the manifest messages
+    this.syncService.getManifestObservable().subscribe(this.onManifest.bind(this));
   }
 
-  set mediaStream(ms:MediaStream) {
+  get mediaSourceSubject(): Subject<MediaSource> {
+    return this._mediaSourceSubject;
+  }
+
+  set mediaStream(ms: MediaStream) {
     this._mediaStream = ms;
   }
 
-  startLive(): MediaSource {
-    let mimeType = this.recordingService.startRecording(this._mediaStream);
+  private initMediaSource(mimeType: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Create media source for the stream, and create the source buffer when ready
+      let self = this;
+      this._mediaSource = new MediaSource();
 
-    // Create media source for the stream, and create the source buffer when ready
-    let self = this;
-    this._mediaSource = new MediaSource();
-    this._mediaSource.addEventListener('sourceopen', function () {
-      self._sourceBuffer = self.mediaSource.addSourceBuffer(mimeType);
-      self._sourceBuffer.mode = 'sequence';
-      self._sourceBuffer.addEventListener('error', function (ev) {
-        console.error("Source buffer error ??");
-        console.error(ev);
+      // WARNING: If the MediaSource is not assigned to any video.src, it will NOT trigger the sourceopen event, that's why we have to advertise it right after creating the MediaSource
+      this._mediaSourceSubject.next(this._mediaSource); // Advertise that the media source is ready
+      this._mediaSource.addEventListener('sourceopen', function () {
+        self._sourceBuffer = self.mediaSource.addSourceBuffer(mimeType);
+        self._sourceBuffer.mode = 'sequence';
+        self._sourceBuffer.addEventListener('error', function (ev) {
+          console.error("Source buffer error: maybe the MIME type of the file you're trying to add is not compatible");
+          console.error(ev);
+        });
+        resolve();
       });
     });
-    return this._mediaSource;
+  }
+
+  startLive() {
+    this.recordingService.startRecording(this._mediaStream);
   }
 
   get mediaSource() {
@@ -164,7 +177,12 @@ export class LiveService {
     });
   }
 
-  appendBlobToBuffer(blob: Blob) {
+  async appendBlobToBuffer(blob: Blob) {
+
+    // Set the media source for the first time;
+    if (this._mediaSource == null) {
+      await this.initMediaSource(blob.type);
+    }
 
     // We call the arrayBuffer in this dirty way, since typescript doesn't have all the types for blob
     blob['arrayBuffer']().then((buffer: ArrayBuffer) => {
