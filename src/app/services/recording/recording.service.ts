@@ -25,7 +25,7 @@ export class RecordingService {
 
   // Starts recording, and returns the MIME type of the recording
   startRecording(ms: MediaStream) {
-    let options = { mimeType: 'video/webm' };
+    let options = { mimeType: 'video/webm;codecs=vp9' };
     this.recorder = new MediaRecorder(ms, options);
     this.recorder.ondataavailable = this.handleDataAvailable.bind(this);
     this.startChunkRecording();
