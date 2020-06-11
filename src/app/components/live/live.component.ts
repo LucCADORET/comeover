@@ -9,6 +9,7 @@ import { LoggerService } from 'src/app/services/logger/logger.service';
 import { RecordingService } from '../../services/recording/recording.service';
 import { LiveService } from '../../services/live/live.service';
 import Plyr from 'plyr';
+import { ToastService } from '../../services/toast/toast.service';
 
 @Component({
   selector: 'app-live',
@@ -23,12 +24,20 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
   player: any;
   hls: any;
   channelId: string;
+  shareURL: string;
   error: string;
   isCreator: boolean = false;
   isLive: boolean = false;
   userId: string;
   broadcastInterval: any;
   userDataSubscription: Subscription;
+
+  // All variables that are used to check the loading status
+  torrentLoading: boolean = true;
+  torrentTimedout: boolean = false;
+  torrentLoadingTimeoutMs: number = 30000;
+  torrentLoadingTimeout: any;
+  checkVideoStatusInterval: any;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,6 +47,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     private logger: LoggerService,
     private recordingService: RecordingService,
     private liveService: LiveService,
+    private toastService: ToastService,
   ) {
 
   }
@@ -46,6 +56,7 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     this.channelId = this.route.snapshot.paramMap.get("channelId");
     this.userId = this.userService.getUserId();
     this.isCreator = this.userService.isUserCreator();
+    this.shareURL = location.href;
 
     // Start webtorrent client
     this.webTorrentService.startClient();
@@ -71,13 +82,20 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     this.syncService.init(this.channelId);
     this.userDataSubscription = this.syncService.getUserDataObservable().subscribe(this.onUserData.bind(this));
     this.startBroadcasting();
+    this.torrentLoadingTimeout = setTimeout(this.onTorrentLoadingTimeout.bind(this), this.torrentLoadingTimeoutMs);
+    this.checkVideoStatusInterval = setInterval(this.checkVideoStatus.bind(this), 1000);
   }
 
   ngOnDestroy(): void {
     this.stopBroadcasting();
+    this.clearLoadingTimeout();
     this.userDataSubscription.unsubscribe();
     this.webTorrentService.destroyClient();
     window.onbeforeunload = null;
+  }
+
+  clearLoadingTimeout() {
+    clearTimeout(this.torrentLoadingTimeout);
   }
 
   ngAfterViewInit() {
@@ -142,5 +160,21 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
   isVideoPlaying() {
     let video = this.videoElem.nativeElement;
     return !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
+  }
+
+  onTorrentLoadingTimeout() {
+    this.torrentTimedout = true;
+  }
+
+  checkVideoStatus() {
+    if (this.isVideoPlaying) {
+      this.torrentLoading = false;
+      this.torrentTimedout = false;
+      this.clearLoadingTimeout();
+    }
+  }
+
+  notifyShareURLCopied(payload: string) {
+    this.toastService.show('URL copied to clipboard', { delay: 1000 });
   }
 }
