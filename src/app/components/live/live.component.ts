@@ -82,7 +82,6 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     this.userDataSubscription = this.syncService.getUserDataObservable().subscribe(this.onUserData.bind(this));
     this.startBroadcasting();
     this.torrentLoadingTimeout = setTimeout(this.onTorrentLoadingTimeout.bind(this), this.torrentLoadingTimeoutMs);
-    this.checkVideoStatusInterval = setInterval(this.checkVideoStatus.bind(this), 1000);
   }
 
   ngOnDestroy(): void {
@@ -107,6 +106,9 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
     // Subscribe to the media source subject to get an update once the media source is ready
     this.liveService.mediaSourceSubject.subscribe((ms: MediaSource) => {
       this.videoElem.nativeElement.src = URL.createObjectURL(ms);
+      this.torrentLoading = false;
+      this.torrentTimedout = false;
+      this.clearLoadingTimeout();
     });
 
     // Determine controls depending on if the user is the creator or not
@@ -165,14 +167,6 @@ export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onTorrentLoadingTimeout() {
     this.torrentTimedout = true;
-  }
-
-  checkVideoStatus() {
-    if (this.isVideoPlaying) {
-      this.torrentLoading = false;
-      this.torrentTimedout = false;
-      this.clearLoadingTimeout();
-    }
   }
 
   notifyShareURLCopied(payload: string) {
