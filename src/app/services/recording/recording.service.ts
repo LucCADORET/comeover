@@ -3,8 +3,8 @@
 import { Injectable } from '@angular/core';
 import { Chunk } from '../../models/chunk';
 import { environment } from '../../../environments/environment';
-import { LiveService } from '../live/live.service';
 import { Subject } from 'rxjs';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +16,7 @@ export class RecordingService {
   private _chunkSubject: Subject<Chunk>;
   private _mimeType: string;
 
-  constructor() {
+  constructor(private logger: LoggerService) {
     this._chunkSubject = new Subject<Chunk>();
   }
 
@@ -51,7 +51,7 @@ export class RecordingService {
    * @param event event on data available containing the blob
    */
   handleDataAvailable(event: any) {
-    console.log("data-available");
+    this.logger.log("data-available");
     if (event.data.size > 0) {
       this.chunkId++;
       let file = this.blobToFile(event.data, `chunk${this.chunkId}`);

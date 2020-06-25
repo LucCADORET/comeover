@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
-
 import WebTorrent from 'webtorrent';
-import { Chunk } from '../../models/chunk';
-import { environment } from '../../../environments/environment';
-import { BehaviorSubject } from 'rxjs';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +9,7 @@ export class WebTorrentService {
 
   private client: any;
 
-  constructor() { }
+  constructor(private logger: LoggerService) { }
 
   startClient() {
     this.client = new WebTorrent();
@@ -30,12 +27,13 @@ export class WebTorrentService {
 
   // Remove a torrent from its magnet URI
   removeTorrent(magnet: string) {
+    let self = this;
     try {
       this.client.remove(magnet, function () {
-        console.log("Removed torrent " + magnet);
+        self.logger.log("Removed torrent " + magnet);
       });
     } catch (error) {
-      console.log("Failed removing torrent");
+      self.logger.error("Failed removing torrent");
       return;
     }
   }

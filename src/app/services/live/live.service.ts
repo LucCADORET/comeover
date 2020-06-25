@@ -3,7 +3,7 @@ import { Chunk } from '../../models/chunk';
 import { WebTorrentService } from '../web-torrent/web-torrent.service';
 import { LoggerService } from '../logger/logger.service';
 import { SyncService } from '../sync/sync.service';
-import { Subscription, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { UserService } from '../user/user.service';
 import { RecordingService } from '../recording/recording.service';
 import { Manifest } from '../../models/manifest';
@@ -88,7 +88,7 @@ export class LiveService {
     this.wtService.seedFiles([chunk.file], (torrent) => {
       chunk.magnet = torrent.magnetURI;
       this.addChunkToBuffer(chunk);
-      console.log(`Seeding ${chunk.file.name} with magnet URI ${chunk.magnet}`);
+      this.logger.log(`Seeding ${chunk.file.name} with magnet URI ${chunk.magnet}`);
       this._manifest = this.makeManifest();
       this.syncService.broadcastManifest(this._manifest);
       self.appendBlobToSourceBuffer(chunk.file);
@@ -147,7 +147,7 @@ export class LiveService {
     // On previous torrent download end, start downloading next chunk (id there is any)
     // And add the downloaded buffer to the source buffer
     torrent.on('done', function () {
-      console.log("Finished downloading chunk " + chunk.id);
+      self.logger.log("Finished downloading chunk " + chunk.id);
       chunk.setReady();
       chunk.file.getBlob((err: any, blob: Blob) => {
         self.appendBlobToSourceBuffer(blob);
@@ -156,10 +156,10 @@ export class LiveService {
       // Download next chunk if any
       let nextChunk = self._chunksBuffer[(chunk.id + 1)];
       if (nextChunk) {
-        console.log("Start downloading new chunk " + nextChunk.id);
+        self.logger.log("Start downloading new chunk " + nextChunk.id);
         self.addTorrent(nextChunk.magnet);
       } else {
-        console.log("No chunk to download in buffer");
+        self.logger.log("No chunk to download in buffer");
       };
 
     });
@@ -193,7 +193,7 @@ export class LiveService {
 
     // We call the arrayBuffer in this dirty way, since typescript doesn't have all the types for blob
     blob['arrayBuffer']().then((buffer: ArrayBuffer) => {
-      console.log("Adding new chunk to buffer !");
+      this.logger.log("Adding new chunk to buffer !");
       this._sourceBuffer.appendBuffer(buffer)
     });
     // Event for view to play video ?
@@ -205,7 +205,7 @@ export class LiveService {
   }
 
   onManifest(manifest: Manifest) {
-    console.log("Received new manifest of size " + manifest.chunks.length);
+    this.logger.log("Received new manifest of size " + manifest.chunks.length);
     this._manifest = manifest;
 
     // If the user is not the creator, we have to download the chunks

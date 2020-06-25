@@ -15,6 +15,6 @@ export class LoggerService {
 
   error(str: string) {
     if (environment.production) return;
-    console.log(str);
+    console.error(str);
   }
 }
