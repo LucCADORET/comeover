@@ -2,13 +2,19 @@ const express = require('express');
 const path = require('path');
 const port = process.env.PORT || 8080;
 const app = express();
-var sslRedirect = require('heroku-ssl-redirect');
 
 // the __dirname is the current directory from where the script is running
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Don't redirect if the hostname is `localhost:port` or the route is `/insecure`
-app.use(sslRedirect());
+function requireHTTPS(req, res, next) {
+  // The 'x-forwarded-proto' check is for Heroku
+  if (!req.secure && req.get('x-forwarded-proto') !== 'https' && process.env.NODE_ENV !== "development") {
+    return res.redirect('https://' + req.get('host') + req.url);
+  }
+  next();
+}
+
+app.use(requireHTTPS);
 
 // send the user the ownership google file
 app.get('/robots.txt', (req, res) => {

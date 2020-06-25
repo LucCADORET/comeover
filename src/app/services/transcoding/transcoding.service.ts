@@ -98,7 +98,6 @@ export class TranscodingService {
           switch (msg.type) {
             case "ready":
 
-              // Add file to MEMFS
               var reader = new FileReader();
 
               reader.addEventListener("error", function (error) {
