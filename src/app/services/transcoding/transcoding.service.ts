@@ -176,15 +176,19 @@ export class TranscodingService {
               self.logger.log(line);
               break;
             case "error":
-              self.logger.error(msg.data + "\n");
+              self.logger.log("Process errored with code " + msg.data);
+              worker.terminate();
+              reject(msg.data + "\n");
               break;
             case "done":
               self._transcodeProgress.next(100);
+              worker.terminate();
               resolve(new File([msg.data], outputName, { type: outputExtension == 'mp4' ? 'video/mp4' : 'video/webm' }));
               break;
             case "exit":
-              self.logger.log("Process exited with code " + msg.data)
+              self.logger.log("Process exited with code " + msg.data);
               worker.terminate();
+              reject(msg.data + "\n");
               break;
           }
         }
@@ -239,7 +243,6 @@ export class TranscodingService {
 
               reader.addEventListener("loadend", function (data) {
                 let mkvBuffer = reader.result as ArrayBuffer;
-
                 let commandData = {
                   type: "subtitles",
                   file: {
@@ -250,7 +253,6 @@ export class TranscodingService {
                 };
                 worker.postMessage(commandData, [commandData.file.data]);
               });
-
               reader.readAsArrayBuffer(file);
               break;
             case "stdout":
@@ -260,16 +262,20 @@ export class TranscodingService {
               self.logger.log(msg.data + "\n");
               break;
             case "error":
-              self.logger.log(msg.data + "\n");
+              self.logger.log("Process errored with code " + msg.data);
+              worker.terminate();
+              reject(msg.data + "\n");
               break;
             case "done":
               let fileNameWithoutExtension = self.getFileWithoutExtension(fileName);
               let subtitleFile = new File([msg.data], fileNameWithoutExtension + '.vtt', { type: 'text/vtt' });
+              worker.terminate();
               resolve(subtitleFile);
               break;
             case "exit":
               self.logger.log("Process exited with code " + msg.data);
               worker.terminate();
+              reject(msg.data + "\n");
               break;
           }
         }
@@ -363,6 +369,8 @@ export class TranscodingService {
               }
               break;
             case "error":
+              self.logger.log("Process errored with code " + msg.data);
+              worker.terminate();
               reject(msg.data + "\n");
               break;
             case "done":
@@ -372,6 +380,7 @@ export class TranscodingService {
             case "exit":
               self.logger.log("Process exited with code " + msg.data);
               worker.terminate();
+              reject(msg.data + "\n");
               break;
           }
         }
