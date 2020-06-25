@@ -27,6 +27,7 @@
     "end-of-stream": "1.4.1",
     "express": "^4.17.1",
     "express-http-to-https": "^1.1.4",
+    "heroku-ssl-redirect": "0.0.4",
     "hls.js": "^0.13.2",
     "moment": "^2.24.0",
     "plyr": "^3.5.6",
