@@ -5,7 +5,7 @@ import { Subject, Observable } from 'rxjs';
 import { ChatMessage } from 'src/app/models/chatMessage';
 import { Message } from 'src/app/models/message';
 import { MessageTypeEnum } from 'src/app/enums/messageTypeEnum';
-import { Chunk } from '../../models/chunk';
+import { Manifest } from '../../models/manifest';
 
 
 @Injectable({
@@ -17,7 +17,7 @@ export class SyncService {
   channeldId: any;
   private userDataSubject = new Subject<UserData>();
   private chatMessageSubject = new Subject<ChatMessage>();
-  private manifestSubject = new Subject<Array<Chunk>>();
+  private manifestSubject = new Subject<Manifest>();
 
   constructor() {
     this.hub = signalhub('signalhub', ['https://signalhub-jccqtwhdwc.now.sh'])
@@ -36,7 +36,7 @@ export class SyncService {
     } else if (message.type == MessageTypeEnum.CHAT) {
       this.chatMessageSubject.next(message.data as ChatMessage);
     } else if (message.type == MessageTypeEnum.MANIFEST) {
-      this.manifestSubject.next(message.data as Array<Chunk>);
+      this.manifestSubject.next(message.data as Manifest);
     }
   }
 
@@ -48,7 +48,7 @@ export class SyncService {
     return this.chatMessageSubject.asObservable();
   }
 
-  getManifestObservable(): Observable<Array<Chunk>> {
+  getManifestObservable(): Observable<Manifest> {
     return this.manifestSubject.asObservable();
   }
 
@@ -62,7 +62,7 @@ export class SyncService {
     this.broadcastToChannel(message);
   }
 
-  broadcastManifest(data: Array<Chunk>) {
+  broadcastManifest(data: Manifest) {
     let message = new Message({ type: MessageTypeEnum.MANIFEST, data: data });
     this.broadcastToChannel(message);
   }

@@ -6,6 +6,7 @@ import { SyncService } from '../sync/sync.service';
 import { Subscription, Subject } from 'rxjs';
 import { UserService } from '../user/user.service';
 import { RecordingService } from '../recording/recording.service';
+import { Manifest } from '../../models/manifest';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class LiveService {
 
   // Used for live streaming
   private _chunksBuffer: Record<number, Chunk>;
-  private _manifest: Array<Chunk>; // The "manifest" is actually only the last recorded chunks ids and magnets
+  private _manifest: Manifest; // The "manifest" is actually only the last recorded chunks ids and magnets
   private BUFFER_MAX_COUNT = 6;
   private _mediaSource: MediaSource;
   private _sourceBuffer: SourceBuffer;
@@ -28,7 +29,7 @@ export class LiveService {
     private userService: UserService,
     private recordingService: RecordingService,
   ) {
-    this._manifest = [];
+    this._manifest = null;
     this._chunksBuffer = {};
 
     // Subscribe to newly recorded chunks
@@ -85,47 +86,34 @@ export class LiveService {
 
     // Seed the chunk, and record its magnet URI
     this.wtService.seedFiles([chunk.file], (torrent) => {
-      self.appendBlobToBuffer(chunk.file);
       chunk.magnet = torrent.magnetURI;
-      this._chunksBuffer[chunk.id] = chunk;
+      this.addChunkToBuffer(chunk);
       console.log(`Seeding ${chunk.file.name} with magnet URI ${chunk.magnet}`);
       this._manifest = this.makeManifest();
       this.syncService.broadcastManifest(this._manifest);
-      self.cleanBuffer();
+      self.appendBlobToSourceBuffer(chunk.file);
     });
   }
 
-  // Cleans the buffer if its length exceeded
-  cleanBuffer() {
-
-    // If the chunk buffer is longer than the max buffer size, remove the chunk from the buffer and destroy the torrent
-    let keys = Object.keys(this._chunksBuffer);
-    if (keys.length > this.BUFFER_MAX_COUNT) {
-      let removedChunk = this._chunksBuffer[keys[0]];
-      this.wtService.removeTorrent(removedChunk.magnet);
-      delete (this._chunksBuffer[keys[0]]);
-    }
-  }
-
-  setChunksFromManifest(manifest: Array<Chunk>): any {
+  setChunksFromManifest(manifest: Manifest): any {
 
     // Add the received chunks to the buffer if they are not here already
-    for (let shortChunk of manifest) {
+    for (let shortChunk of manifest.chunks) {
       let existingChunk = this._chunksBuffer[shortChunk.id];
 
       // if the chunk is not existing, add it right after the last id
       if (existingChunk == null) {
         this._chunksBuffer[shortChunk.id] = shortChunk;
+        this.addChunkToBuffer(shortChunk);
       }
     }
-    this.cleanBuffer();
 
     // Add chunk torrent if no chunk is being downloaded 
     // AND if this is a new chunk (not downloaded, and not downloading)
     if (!this.wtService.isDownloading()) {
       for (let chunkId in this._chunksBuffer) {
         let chunk = this._chunksBuffer[chunkId];
-        if (this.wtService.magnetExists(chunk.magnet)) {
+        if (!this.wtService.magnetExists(chunk.magnet)) {
           this.addTorrent(chunk.magnet);
           return;
         }
@@ -134,7 +122,7 @@ export class LiveService {
   }
 
   // Make the manifest with the magnets URI
-  makeManifest(): any {
+  makeManifest(): Manifest {
     let shortChunks = [];
     for (let index in this._chunksBuffer) {
       shortChunks.push({
@@ -142,7 +130,7 @@ export class LiveService {
         id: this._chunksBuffer[index].id,
       });
     }
-    return shortChunks;
+    return new Manifest({ mimeType: this.recordingService.mimeType, chunks: shortChunks });
   };
 
   addTorrent(magnet: string) {
@@ -162,7 +150,7 @@ export class LiveService {
       console.log("Finished downloading chunk " + chunk.id);
       chunk.setReady();
       chunk.file.getBlob((err: any, blob: Blob) => {
-        self.appendBlobToBuffer(blob);
+        self.appendBlobToSourceBuffer(blob);
       });
 
       // Download next chunk if any
@@ -177,11 +165,30 @@ export class LiveService {
     });
   }
 
-  async appendBlobToBuffer(blob: Blob) {
+  /**
+   * Adds a new chunk to the buffer, while taking care of the maximum buffer size
+   */
+  addChunkToBuffer(chunk: Chunk) {
+    this._chunksBuffer[chunk.id] = chunk;
+
+    // If the chunk buffer is longer than the max buffer size, remove the chunk from the buffer and destroy the torrent
+    let keys = Object.keys(this._chunksBuffer);
+    if (keys.length > this.BUFFER_MAX_COUNT) {
+      let removedChunk = this._chunksBuffer[keys[0]];
+      this.wtService.removeTorrent(removedChunk.magnet);
+      delete (this._chunksBuffer[keys[0]]);
+    }
+  }
+
+  /**
+   * Actually renders the blob into the media source
+   * @param blob The blob to render in the media source
+   */
+  async appendBlobToSourceBuffer(blob: Blob) {
 
     // Set the media source for the first time;
     if (this._mediaSource == null) {
-      await this.initMediaSource(blob.type);
+      await this.initMediaSource(this._manifest.mimeType);
     }
 
     // We call the arrayBuffer in this dirty way, since typescript doesn't have all the types for blob
@@ -197,12 +204,13 @@ export class LiveService {
     return parseFloat(match[2]);
   }
 
-  onManifest(data: Array<Chunk>) {
-    console.log("Received new manifest of size " + data.length);
+  onManifest(manifest: Manifest) {
+    console.log("Received new manifest of size " + manifest.chunks.length);
+    this._manifest = manifest;
 
     // If the user is not the creator, we have to download the chunks
     if (!this.userService.isUserCreator()) {
-      this.setChunksFromManifest(data);
+      this.setChunksFromManifest(manifest);
     }
   }
 }

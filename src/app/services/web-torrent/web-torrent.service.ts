@@ -58,12 +58,12 @@ export class WebTorrentService {
   // Looks through the client's torrents to check if a chunk isn't already in the list of torrents
   magnetExists(magnet: string): boolean {
     if (!this.client) return false;
-    if (this.client.torrents.length == 0) return true;
+    if (this.client.torrents.length == 0) return false;
     for (let torrent of this.client.torrents) {
       if (torrent.magnetURI == magnet) {
-        return false;
+        return true;
       }
     }
-    return true;
+    return false;
   }
 }

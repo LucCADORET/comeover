@@ -14,6 +14,7 @@ export class RecordingService {
   private recorder: MediaRecorder;
   private chunkId = 0;
   private _chunkSubject: Subject<Chunk>;
+  private _mimeType: string;
 
   constructor() {
     this._chunkSubject = new Subject<Chunk>();
@@ -23,12 +24,17 @@ export class RecordingService {
     return this._chunkSubject;
   }
 
+  get mimeType() {
+    return this._mimeType;
+  }
+
   // Starts recording, and returns the MIME type of the recording
   startRecording(ms: MediaStream) {
     let options = { mimeType: 'video/webm;codecs=vp9' };
     this.recorder = new MediaRecorder(ms, options);
     this.recorder.ondataavailable = this.handleDataAvailable.bind(this);
     this.startChunkRecording();
+    this._mimeType = this.recorder.mimeType;
   }
 
   startChunkRecording() {
