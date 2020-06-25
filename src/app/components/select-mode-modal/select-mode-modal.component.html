@@ -5,9 +5,11 @@
     </button>
 </div>
 <div class="modal-body container-fluid">
-    <div class="select-mode-buttons-wrapper d-flex align-items-center justify-content-around" *ngIf="selectedMode == null">
+    <div class="select-mode-buttons-wrapper d-flex align-items-center justify-content-around"
+        *ngIf="selectedMode == null">
         <button class="btn btn-primary btn-lg" (click)="selectMode(modesEnum.FILE)">Stream from a file</button>
-        <button class="btn btn-primary btn-lg" (click)="selectMode(modesEnum.LIVE)">Live stream</button>
+        <button class="btn btn-primary btn-lg" (click)="selectMode(modesEnum.LIVE)">Live stream <span
+                class="text-center text-warning">(beta)</span></button>
     </div>
     <div class="row mb-2" *ngIf="selectedMode != null">
         <div class="col-sm-2">
