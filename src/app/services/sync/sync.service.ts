@@ -20,7 +20,7 @@ export class SyncService {
   private manifestSubject = new Subject<Manifest>();
 
   constructor() {
-    this.hub = signalhub('signalhub', ['https://signalhub-jccqtwhdwc.now.sh'])
+    this.hub = signalhub('sak-1', ['http://51.91.77.95'])
   }
 
   init(channelId) {
