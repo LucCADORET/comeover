@@ -1,0 +1,4 @@
+# robots.txt for https://comeover.io/
+
+User-agent: *
+Disallow: /cinema/*
