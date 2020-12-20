@@ -6,9 +6,8 @@ import { UserService } from 'src/app/services/user/user.service';
 import { UserData } from 'src/app/models/userData';
 import { Subscription } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger/logger.service';
-import { RecordingService } from '../../services/recording/recording.service';
 import { LiveService } from '../../services/live/live.service';
-import Plyr from 'plyr';
+import * as Plyr from 'plyr';
 import { ToastService } from '../../services/toast/toast.service';
 
 @Component({

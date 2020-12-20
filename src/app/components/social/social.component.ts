@@ -24,6 +24,7 @@ export class SocialComponent implements OnInit, OnDestroy, AfterViewInit {
   timeoutMs: number = 30000;
   userDataSubscription: Subscription;
   chatMessageSubscription: Subscription;
+  activeId: number = 1; // Active social tab id
 
   constructor(
     private modalService: NgbModal,

@@ -12,7 +12,7 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `node patch.js` to pre-apply the patches to node (have a fake fs, enable crypto and stream)
+Run `node patch.js` to pre-apply the patches to node (have a fake fs, enable crypto and stream). This is **mandatory** in order to build the website, since some libs are dependant for a build on `fs` (even though it's not used).
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 

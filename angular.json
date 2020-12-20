@@ -170,5 +170,8 @@
       }
     }
   },
-  "defaultProject": "comeover-client"
+  "defaultProject": "comeover-client",
+  "cli": {
+    "analytics": false
+  }
 }

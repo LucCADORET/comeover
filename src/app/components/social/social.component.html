@@ -1,8 +1,8 @@
-<div class="flex-grow-1 d-flex flex-column h-100 social-tabset-wrapper">
-    <ngb-tabset activeId="ngb-tab-1" class="flex-grow-1 d-flex flex-column h-100">
-        <ngb-tab>
-            <ng-template ngbTabTitle>Chat</ng-template>
-            <ng-template ngbTabContent>
+<div class="flex-grow-1 d-flex flex-column social-tabset-wrapper">
+    <ul ngbNav  #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs">
+        <li [ngbNavItem]="1">
+            <a ngbNavLink>Chat</a>
+            <ng-template ngbNavContent>
                 <div class="social-tab-content flex-grow-1 d-flex flex-column h-100">
                     <div class="flex-grow-1 h-100 mt-2 mx-2 message-list-wrapper">
                         <ul class="px-0 mb-0 h-100 message-list">
@@ -20,10 +20,10 @@
                     </div>
                 </div>
             </ng-template>
-        </ngb-tab>
-        <ngb-tab>
-            <ng-template ngbTabTitle>Users</ng-template>
-            <ng-template ngbTabContent>
+        </li>
+        <li [ngbNavItem]="2">
+            <a ngbNavLink>Users</a>
+            <ng-template ngbNavContent>
                 <div class="social-tab-content h-100">
                     <div class="m-2 user-list-wrapper h-100">
                         <ul class="px-0 mb-0 h-100 user-list">
@@ -37,9 +37,10 @@
                     </div>
                 </div>
             </ng-template>
-        </ngb-tab>
-    </ngb-tabset>
+        </li>
+    </ul>
 </div>
+<div [ngbNavOutlet]="nav" class="mt-2"></div>
 <div class="mt-2">
     <span>You are <span [style.color]="color"><b>{{username}}</b></span></span>
     <button class="btn btn-link btn-sm" (click)="openUserSettingsModal()"><i class="fas fa-pencil-alt"></i></button>

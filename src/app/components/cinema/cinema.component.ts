@@ -4,7 +4,7 @@ import { WebTorrentService } from 'src/app/services/web-torrent/web-torrent.serv
 import { SyncService } from 'src/app/services/sync/sync.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { UserData } from 'src/app/models/userData';
-import Plyr from 'plyr';
+import * as Plyr from 'plyr';
 import { Subscription, Subject } from 'rxjs';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { LoggerService } from 'src/app/services/logger/logger.service';
