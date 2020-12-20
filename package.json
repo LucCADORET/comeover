@@ -32,7 +32,7 @@
     "moment": "^2.29.1",
     "plyr": "^3.6.3",
     "random-username-generator": "^1.0.4",
-    "rxjs": "~6.4.0",
+    "rxjs": "~6.6.3",
     "signalhub": "^4.9.0",
     "srt-webvtt": "^1.0.1",
     "tslib": "^1.14.1",
