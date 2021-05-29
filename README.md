@@ -1,6 +1,9 @@
 # ComeOverClient
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.3.5.
+The Comeover Website, that you can access at https://luccadoret.github.io/comeover/home
+
+This website allows you to shave a video file with other people, using webtorrent, and watch it live together, with a simple time sync. It also includes experimental functionalities like in-browser transcoding, subtitle files, and even live streaming (VERY experimental, and with delay).
+For it to work well, I advise you to use a .mp4 h264 file, 1.8 GB max. Feel free to contribute, there are many bugs to fix.
 
 ## Development server
 
@@ -16,14 +19,3 @@ Run `node patch.js` to pre-apply the patches to node (have a fake fs, enable cry
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
