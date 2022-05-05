@@ -52,7 +52,7 @@
     "@types/jasmine": "~3.3.8",
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.11.1",
-    "angular-cli-ghpages": "^1.0.0-rc.1",
+    "angular-cli-ghpages": "^1.0.0",
     "codelyzer": "^5.1.2",
     "jasmine-core": "~3.5.0",
     "jasmine-spec-reporter": "~5.0.0",
