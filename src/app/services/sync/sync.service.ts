@@ -20,7 +20,7 @@ export class SyncService {
   private manifestSubject = new Subject<Manifest>();
 
   constructor() {
-    this.hub = signalhub('sak-1', ['https://api.luc.camp'])
+    this.hub = signalhub('sak-1', ['https://api.luc42.xyz'])
   }
 
   init(channelId) {
