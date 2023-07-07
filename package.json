@@ -4,19 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "node server.js",
-    "build": "ng build --output-path dist --configuration=${NODE_ENV}",
+    "build": "node patch.js && ng build --output-path dist --configuration=${NODE_ENV}",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
-  },
-  "browser": {
-    "crypto": false,
-    "fs": false,
-    "https": false,
-    "path": false,
-    "http": false,
-    "querystring": false,
-    "stream": false
   },
   "private": true,
   "dependencies": {
