@@ -21,3 +21,11 @@ The only centralized points are the SignalHub inital handshake, and the use of a
 - `npm install`
 - `node patch.js`  we need to manually patch the webpack build options
 - `npx ng serve`
+
+## TODO:
+
+- Bump the versions of most packages (Angular, ng-bootstrap, WebTorrent)
+- Add an option for manual WebRTC connection
+- Add a realiable broadcasting option (signalhub is slow/unreliable by nature)
+- Use https://github.com/ngosang/trackerslist for automatically setting the trackers list
+- Better interface feedback on erros (server unavailable, no messages received, tracker wrong...)
