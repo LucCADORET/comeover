@@ -54,7 +54,12 @@
         <ngb-accordion #acc="ngbAccordion">
             <ngb-panel title="Torrent info">
                 <ng-template ngbPanelContent>
-                    <div [innerHTML]="info"> </div>
+                    <div *ngIf="torrentInfo.infoHash">
+                        Torrent info hash: {{torrentInfo.infoHash}}
+                        <a [href]="torrentInfo.magnetURI" target="_blank">[Magnet URI]</a>
+                        <a [href]="torrentInfo.torrentFileBlobURL" target="_blank"
+                            download="{{torrentInfo.name + '.torrent'}}">[Download .torrent]</a>
+                    </div>
                     <!--TODO: show other torrent info: connected peers, seeding/leeching of each of them-->
                     Progress: {{downloaded | bytes}}/{{length | bytes}} ({{progress | percent}})<br>
                     ETA: {{timeRemaining | duration}}<br>

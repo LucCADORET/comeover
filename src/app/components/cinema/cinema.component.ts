@@ -9,6 +9,7 @@ import { Subscription, Subject } from 'rxjs';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { LoggerService } from 'src/app/services/logger/logger.service';
 import { CinemaService } from '../../services/cinema/cinema.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-cinema',
@@ -23,7 +24,12 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
   player: any;
   channelId: string;
   shareURL: string;
-  info: string;
+  torrentInfo = { // info accessible from the frontend
+    infoHash: null,
+    magnetURI: null,
+    torrentFileBlobURL: null,
+    name: null,
+  };
   error: string;
   isCreator: boolean = false;
   userId: string;
@@ -54,6 +60,7 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
     private toastService: ToastService,
     private logger: LoggerService,
     private cinemaService: CinemaService,
+    private sanitizer: DomSanitizer,
   ) {
     this.mediaSourceSubject = new Subject<MediaSource>();
   }
@@ -194,9 +201,10 @@ export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.logger.log('Got torrent metadata!');
 
-    this.info = 'Torrent info hash: ' + torrent.infoHash + ' ' +
-      '<a href="' + torrent.magnetURI + '" target="_blank">[Magnet URI]</a> ' +
-      '<a href="' + torrent.torrentFileBlobURL + '" target="_blank" download="' + torrent.name + '.torrent">[Download .torrent]</a>';
+    this.torrentInfo.infoHash = torrent.infoHash;
+    this.torrentInfo.magnetURI = this.sanitizer.bypassSecurityTrustUrl(torrent.magnetURI);
+    this.torrentInfo.torrentFileBlobURL = this.sanitizer.bypassSecurityTrustUrl(torrent.torrentFileBlobURL);
+    this.torrentInfo.name = torrent.name;
 
     // Print out progress every 5 seconds
     setInterval(function () {
