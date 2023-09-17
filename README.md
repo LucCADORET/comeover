@@ -1,5 +1,3 @@
-Update 05/05/2022: the website is now live again :)
-
 # ComeOver Client
 
 The Comeover Website, that you can access at https://luccadoret.github.io/comeover/home

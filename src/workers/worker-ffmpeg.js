@@ -1,6 +1,7 @@
 // this file is used to run ffmpeg_asm.js!
 // however, it is included in the HTML as "processInWebWorker" method instead of linking as a separate javascript file!
 // we prefix the url with "comeover" in the case where we are on github pages
+// importScripts('/libs/ffmpeg-core.js'); // use this is using locally
 importScripts('/comeover/libs/ffmpeg-core.js');
 let FFmpegCore = Module;
 // This automatically imports a global 'Module' variable
