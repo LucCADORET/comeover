@@ -20,11 +20,7 @@ export class WebTorrentService {
 
       // TODO: use the https://github.com/ngosang/trackerslist list automatically ?
       announce: [
-        "udp://tracker.opentrackr.org:1337/announce",
-        "https://tracker1.520.jp:443/announce",
-        "udp://opentracker.i2p.rocks:6969/announce",
-        "udp://open.demonii.com:1337/announce",
-        "udp://tracker.openbittorrent.com:6969/announce",
+        "wss://tracker.webtorrent.dev",
       ]
     };
     this.client.seed(files, seedOptions, (torrent) => {
