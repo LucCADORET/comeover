@@ -16,3 +16,10 @@ Comeover makes uses 3 key components:
 - [SignalHub](https://github.com/mafintosh/signalhub) to connect users together, allowing them to sync their video via WebRTC
 
 The only centralized points are the SignalHub inital handshake, and the use of a tracker website to share the data related to the torrent. The rest is completely P2P. This could be further improved by allowing users to manually share their WebRTC data, eliminating the need for SignalHub.
+
+## Run locally
+
+- Make sure you use node **v16 at most** or use the legacy OpenSSL in newer versions
+- `npm install`
+- `node patch.js`  we need to manually patch the webpack build options
+- `npx ng serve`
