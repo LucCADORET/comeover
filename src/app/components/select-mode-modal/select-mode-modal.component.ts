@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ModesEnum } from '../../enums/modesEnum';
 import { SelectModeResult } from '../../models/selectModeResult';
+import { SelectFileComponent } from '../select-file/select-file.component';
+import { SelectSourceComponent } from '../select-source/select-source.component';
 
 @Component({
     selector: 'app-select-mode-modal',
     templateUrl: './select-mode-modal.component.html',
     styleUrls: ['./select-mode-modal.component.scss'],
-    standalone: false
+    imports: [SelectFileComponent, SelectSourceComponent]
 })
 export class SelectModeModalComponent implements OnInit {
 

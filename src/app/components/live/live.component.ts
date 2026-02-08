@@ -9,12 +9,15 @@ import { LoggerService } from 'src/app/services/logger/logger.service';
 import { LiveService } from '../../services/live/live.service';
 import * as Plyr from 'plyr';
 import { ToastService } from '../../services/toast/toast.service';
+import { SocialComponent } from '../social/social.component';
+import { CopyClipboardDirective } from '../../directives/copy-clipboard.directive';
+import { ToastsContainerComponent } from '../toasts-container/toasts-container.component';
 
 @Component({
     selector: 'app-live',
     templateUrl: './live.component.html',
     styleUrls: ['./live.component.scss'],
-    standalone: false
+    imports: [SocialComponent, CopyClipboardDirective, ToastsContainerComponent]
 })
 export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 

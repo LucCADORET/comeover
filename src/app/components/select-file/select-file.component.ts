@@ -3,14 +3,15 @@ import { TranscodingService } from 'src/app/services/transcoding/transcoding.ser
 import { VideoStream } from 'src/app/models/videoStream';
 import { AudioStream } from 'src/app/models/audioStream';
 import { SubtitleStream } from 'src/app/models/subtitleStream';
-import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { codecValidator } from 'src/app/validators/codec.validator';
+import { NgbProgressbar } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-select-file',
     templateUrl: './select-file.component.html',
     styleUrls: ['./select-file.component.scss'],
-    standalone: false
+    imports: [FormsModule, ReactiveFormsModule, NgbProgressbar]
 })
 export class SelectFileComponent implements OnInit {
 

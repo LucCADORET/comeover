@@ -10,12 +10,18 @@ import { ToastService } from 'src/app/services/toast/toast.service';
 import { LoggerService } from 'src/app/services/logger/logger.service';
 import { CinemaService } from '../../services/cinema/cinema.service';
 import { DomSanitizer } from '@angular/platform-browser';
+import { SocialComponent } from '../social/social.component';
+import { CopyClipboardDirective } from '../../directives/copy-clipboard.directive';
+import { ToastsContainerComponent } from '../toasts-container/toasts-container.component';
+import { PercentPipe } from '@angular/common';
+import { BytesPipe } from '../../pipes/bytes.pipe';
+import { DurationPipe } from '../../pipes/duration.pipe';
 
 @Component({
     selector: 'app-cinema',
     templateUrl: './cinema.component.html',
     styleUrls: ['./cinema.component.scss'],
-    standalone: false
+    imports: [SocialComponent, CopyClipboardDirective, ToastsContainerComponent, PercentPipe, BytesPipe, DurationPipe]
 })
 export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 

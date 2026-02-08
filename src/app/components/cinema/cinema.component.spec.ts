@@ -8,8 +8,8 @@ describe('CinemaComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ CinemaComponent ]
-    })
+    imports: [CinemaComponent]
+})
     .compileComponents();
   }));
 

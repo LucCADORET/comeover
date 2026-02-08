@@ -8,8 +8,8 @@ describe('SelectFilesModalComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ SelectFileComponent ]
-    })
+    imports: [SelectFileComponent]
+})
     .compileComponents();
   }));
 

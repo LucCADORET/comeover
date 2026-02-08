@@ -3,10 +3,7 @@ import { isNumberFinite, isPositive, isInteger, toDecimal } from '../utils/utils
 
 export type ByteUnit = 'B' | 'kB' | 'KB' | 'MB' | 'GB' | 'TB';
 
-@Pipe({
-    name: 'bytes',
-    standalone: false
-})
+@Pipe({ name: 'bytes' })
 export class BytesPipe implements PipeTransform {
   static formats: { [key: string]: { max: number; prev?: ByteUnit } } = {
     B: { max: 1024 },

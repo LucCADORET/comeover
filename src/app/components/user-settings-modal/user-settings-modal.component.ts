@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserService } from 'src/app/services/user/user.service';
+import { FormsModule } from '@angular/forms';
+import { ColorPickerComponent } from '../color-picker/color-picker.component';
 
 @Component({
     selector: 'app-user-settings-modal',
     templateUrl: './user-settings-modal.component.html',
     styleUrls: ['./user-settings-modal.component.scss'],
-    standalone: false
+    imports: [FormsModule, ColorPickerComponent]
 })
 export class UserSettingsModalComponent implements OnInit {
 

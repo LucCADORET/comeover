@@ -1,17 +1,18 @@
 import { Component, OnInit, ElementRef, ViewChild, QueryList, AfterViewInit, ViewChildren, OnDestroy } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbNavLinkBase, NgbNavContent, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
 import { UserSettingsModalComponent } from '../user-settings-modal/user-settings-modal.component';
 import { UserService } from 'src/app/services/user/user.service';
 import { SyncService } from 'src/app/services/sync/sync.service';
 import { UserData } from 'src/app/models/userData';
 import { ChatMessage } from 'src/app/models/chatMessage';
 import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-social',
-  templateUrl: './social.component.html',
-  styleUrls: ['./social.component.scss'],
-  standalone: false
+    selector: 'app-social',
+    templateUrl: './social.component.html',
+    styleUrls: ['./social.component.scss'],
+    imports: [NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbNavLinkBase, NgbNavContent, FormsModule, NgbNavOutlet]
 })
 export class SocialComponent implements OnInit, OnDestroy, AfterViewInit {
 

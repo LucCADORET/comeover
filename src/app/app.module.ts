@@ -23,8 +23,14 @@ import { SelectModeModalComponent } from './components/select-mode-modal/select-
 import { SelectSourceComponent } from './components/select-source/select-source.component';
 
 @NgModule({
-    declarations: [
-        AppComponent,
+    declarations: [AppComponent],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        NgbModule,
+        NgbAccordionModule,
+        ReactiveFormsModule,
         CinemaComponent,
         HomeComponent,
         SocialComponent,
@@ -40,14 +46,6 @@ import { SelectSourceComponent } from './components/select-source/select-source.
         LiveComponent,
         SelectModeModalComponent,
         SelectSourceComponent,
-    ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        FormsModule,
-        NgbModule,
-        NgbAccordionModule,
-        ReactiveFormsModule,
     ],
     providers: [],
     bootstrap: [AppComponent]

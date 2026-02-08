@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { EventEmitter, Input, Output } from '@angular/core';
 import { ColorsService } from 'src/app/services/colors/colors.service';
+import { NgStyle } from '@angular/common';
 
 @Component({
     selector: 'app-color-picker',
     templateUrl: './color-picker.component.html',
     styleUrls: ['./color-picker.component.scss'],
-    standalone: false
+    imports: [NgStyle]
 })
 export class ColorPickerComponent implements OnInit {
 
