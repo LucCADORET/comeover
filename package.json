@@ -31,7 +31,7 @@
     "heroku-ssl-redirect": "0.0.4",
     "hls.js": "^0.13.2",
     "moment": "^2.29.1",
-    "plyr": "^3.6.4",
+    "plyr": "^3.8.4",
     "random-username-generator": "^1.0.4",
     "rxjs": "~6.6.3",
     "signalhub": "^4.9.0",
