@@ -23,36 +23,32 @@ import { SelectModeModalComponent } from './components/select-mode-modal/select-
 import { SelectSourceComponent } from './components/select-source/select-source.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    CinemaComponent,
-    HomeComponent,
-    SocialComponent,
-    SelectFileComponent,
-    UserSettingsModalComponent,
-    ColorPickerComponent,
-    BytesPipe,
-    DurationPipe,
-    FaqComponent,
-    DonateComponent,
-    CopyClipboardDirective,
-    ToastsContainerComponent,
-    LiveComponent,
-    SelectModeModalComponent,
-    SelectSourceComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    FormsModule,
-    NgbModule,
-    ReactiveFormsModule,
-  ],
-  providers: [],
-  bootstrap: [AppComponent],
-  entryComponents: [
-    SelectModeModalComponent,
-    UserSettingsModalComponent,
-  ]
+    declarations: [
+        AppComponent,
+        CinemaComponent,
+        HomeComponent,
+        SocialComponent,
+        SelectFileComponent,
+        UserSettingsModalComponent,
+        ColorPickerComponent,
+        BytesPipe,
+        DurationPipe,
+        FaqComponent,
+        DonateComponent,
+        CopyClipboardDirective,
+        ToastsContainerComponent,
+        LiveComponent,
+        SelectModeModalComponent,
+        SelectSourceComponent,
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        FormsModule,
+        NgbModule,
+        ReactiveFormsModule,
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
 })
 export class AppModule { }
