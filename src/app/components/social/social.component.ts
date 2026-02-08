@@ -8,9 +8,10 @@ import { ChatMessage } from 'src/app/models/chatMessage';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-social',
-  templateUrl: './social.component.html',
-  styleUrls: ['./social.component.scss']
+    selector: 'app-social',
+    templateUrl: './social.component.html',
+    styleUrls: ['./social.component.scss'],
+    standalone: false
 })
 export class SocialComponent implements OnInit, OnDestroy, AfterViewInit {
 

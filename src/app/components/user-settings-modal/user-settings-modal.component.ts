@@ -3,9 +3,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
-  selector: 'app-user-settings-modal',
-  templateUrl: './user-settings-modal.component.html',
-  styleUrls: ['./user-settings-modal.component.scss']
+    selector: 'app-user-settings-modal',
+    templateUrl: './user-settings-modal.component.html',
+    styleUrls: ['./user-settings-modal.component.scss'],
+    standalone: false
 })
 export class UserSettingsModalComponent implements OnInit {
 

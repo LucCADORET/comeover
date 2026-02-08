@@ -12,9 +12,10 @@ import { CinemaService } from '../../services/cinema/cinema.service';
 import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-cinema',
-  templateUrl: './cinema.component.html',
-  styleUrls: ['./cinema.component.scss']
+    selector: 'app-cinema',
+    templateUrl: './cinema.component.html',
+    styleUrls: ['./cinema.component.scss'],
+    standalone: false
 })
 export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 

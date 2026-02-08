@@ -1,7 +1,8 @@
 import { Directive, Input, Output, EventEmitter, HostListener } from '@angular/core';
 
 @Directive({
-  selector: '[copy-clipboard]'
+    selector: '[copy-clipboard]',
+    standalone: false
 })
 export class CopyClipboardDirective {
 

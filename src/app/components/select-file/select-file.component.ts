@@ -7,9 +7,10 @@ import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import { codecValidator } from 'src/app/validators/codec.validator';
 
 @Component({
-  selector: 'app-select-file',
-  templateUrl: './select-file.component.html',
-  styleUrls: ['./select-file.component.scss']
+    selector: 'app-select-file',
+    templateUrl: './select-file.component.html',
+    styleUrls: ['./select-file.component.scss'],
+    standalone: false
 })
 export class SelectFileComponent implements OnInit {
 

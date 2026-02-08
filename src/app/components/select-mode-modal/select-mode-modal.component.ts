@@ -4,9 +4,10 @@ import { ModesEnum } from '../../enums/modesEnum';
 import { SelectModeResult } from '../../models/selectModeResult';
 
 @Component({
-  selector: 'app-select-mode-modal',
-  templateUrl: './select-mode-modal.component.html',
-  styleUrls: ['./select-mode-modal.component.scss']
+    selector: 'app-select-mode-modal',
+    templateUrl: './select-mode-modal.component.html',
+    styleUrls: ['./select-mode-modal.component.scss'],
+    standalone: false
 })
 export class SelectModeModalComponent implements OnInit {
 

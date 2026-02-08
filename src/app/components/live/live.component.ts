@@ -11,9 +11,10 @@ import * as Plyr from 'plyr';
 import { ToastService } from '../../services/toast/toast.service';
 
 @Component({
-  selector: 'app-live',
-  templateUrl: './live.component.html',
-  styleUrls: ['./live.component.scss']
+    selector: 'app-live',
+    templateUrl: './live.component.html',
+    styleUrls: ['./live.component.scss'],
+    standalone: false
 })
 export class LiveComponent implements OnInit, OnDestroy, AfterViewInit {
 

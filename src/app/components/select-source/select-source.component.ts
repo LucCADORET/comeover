@@ -1,9 +1,10 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 @Component({
-  selector: 'app-select-source',
-  templateUrl: './select-source.component.html',
-  styleUrls: ['./select-source.component.scss']
+    selector: 'app-select-source',
+    templateUrl: './select-source.component.html',
+    styleUrls: ['./select-source.component.scss'],
+    standalone: false
 })
 export class SelectSourceComponent implements OnInit {
 

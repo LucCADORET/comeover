@@ -3,9 +3,10 @@ import { EventEmitter, Input, Output } from '@angular/core';
 import { ColorsService } from 'src/app/services/colors/colors.service';
 
 @Component({
-  selector: 'app-color-picker',
-  templateUrl: './color-picker.component.html',
-  styleUrls: ['./color-picker.component.scss']
+    selector: 'app-color-picker',
+    templateUrl: './color-picker.component.html',
+    styleUrls: ['./color-picker.component.scss'],
+    standalone: false
 })
 export class ColorPickerComponent implements OnInit {
 
