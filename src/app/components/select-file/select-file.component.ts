@@ -3,7 +3,7 @@ import { TranscodingService } from 'src/app/services/transcoding/transcoding.ser
 import { VideoStream } from 'src/app/models/videoStream';
 import { AudioStream } from 'src/app/models/audioStream';
 import { SubtitleStream } from 'src/app/models/subtitleStream';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms';
 import { codecValidator } from 'src/app/validators/codec.validator';
 
 @Component({
@@ -28,13 +28,13 @@ export class SelectFileComponent implements OnInit {
   audioStreams: Array<AudioStream> = [];
   subtitleStreams: Array<SubtitleStream> = [];
 
-  optionsForm: FormGroup;
+  optionsForm: UntypedFormGroup;
   @Output() files: EventEmitter<Array<File>>;
 
 
   constructor(
     private transcodingService: TranscodingService,
-    private formBuilder: FormBuilder
+    private formBuilder: UntypedFormBuilder
   ) {
     this.optionsForm = this.formBuilder.group({
       videoStreamControl: [null, codecValidator],

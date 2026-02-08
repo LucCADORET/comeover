@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import * as uuidv4 from 'uuid/v4';
 import { UserService } from 'src/app/services/user/user.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { CinemaService } from '../../services/cinema/cinema.service';
 import { SelectModeModalComponent } from '../select-mode-modal/select-mode-modal.component';
 import { SelectModeResult } from '../../models/selectModeResult';
@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit {
 
   channelId: string = "";
   magnet: string = "";
-  channelIdInput = new FormControl('', Validators.pattern(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i));
+  channelIdInput = new UntypedFormControl('', Validators.pattern(/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i));
 
   constructor(
     private router: Router,

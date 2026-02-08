@@ -165,7 +165,6 @@
       }
     }
   },
-  "defaultProject": "comeover-client",
   "cli": {
     "analytics": false
   }
