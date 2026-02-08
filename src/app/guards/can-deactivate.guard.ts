@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, CanDeactivate } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
 import { CinemaComponent } from '../components/cinema/cinema.component';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CanDeactivateGuard implements CanDeactivate<CinemaComponent> {
+export class CanDeactivateGuard  {
   canDeactivate(
     component: CinemaComponent,
     next: ActivatedRouteSnapshot,
