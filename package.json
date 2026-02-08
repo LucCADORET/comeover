@@ -40,7 +40,7 @@
     "uuid": "^3.4.0",
     "videoconverter": "^0.1.0",
     "webrtc-swarm": "^2.9.0",
-    "webtorrent": "^0.107.17",
+    "webtorrent": "^1.0.0",
     "zone.js": "~0.10.2"
   },
   "devDependencies": {
