@@ -6,7 +6,7 @@ describe('CinemaService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: CinemaService = TestBed.get(CinemaService);
+    const service: CinemaService = TestBed.inject(CinemaService);
     expect(service).toBeTruthy();
   });
 });

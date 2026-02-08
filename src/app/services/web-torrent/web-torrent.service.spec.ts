@@ -6,7 +6,7 @@ describe('WebTorrentService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: WebTorrentService = TestBed.get(WebTorrentService);
+    const service: WebTorrentService = TestBed.inject(WebTorrentService);
     expect(service).toBeTruthy();
   });
 });

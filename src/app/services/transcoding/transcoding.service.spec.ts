@@ -6,7 +6,7 @@ describe('TranscodingServiceService', () => {
   beforeEach(() => TestBed.configureTestingModule({}));
 
   it('should be created', () => {
-    const service: TranscodingService = TestBed.get(TranscodingService);
+    const service: TranscodingService = TestBed.inject(TranscodingService);
     expect(service).toBeTruthy();
   });
 });

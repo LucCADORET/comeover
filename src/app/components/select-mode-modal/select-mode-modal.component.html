@@ -1,32 +1,44 @@
 <div class="modal-header">
-    <h4 class="modal-title">Create a new stream</h4>
-    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
-        <span aria-hidden="true">&times;</span>
-    </button>
+  <h4 class="modal-title">Create a new stream</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss()">
+    <span aria-hidden="true">&times;</span>
+  </button>
 </div>
 <div class="modal-body container-fluid">
+  @if (selectedMode == null) {
     <div class="select-mode-buttons-wrapper d-flex align-items-center justify-content-around"
-        *ngIf="selectedMode == null">
-        <button class="btn btn-primary btn-lg" (click)="selectMode(modesEnum.FILE)">Stream from a file</button>
-        <button class="btn btn-primary btn-lg" (click)="selectMode(modesEnum.LIVE)">Live stream <span
-                class="text-center text-warning">(beta)</span></button>
+      >
+      <button class="btn btn-primary btn-lg" (click)="selectMode(modesEnum.FILE)">Stream from a file</button>
+      <button class="btn btn-primary btn-lg" (click)="selectMode(modesEnum.LIVE)">Live stream <span
+      class="text-center text-warning">(beta)</span></button>
     </div>
-    <div class="row mb-2" *ngIf="selectedMode != null">
-        <div class="col-sm-2">
-            <button class="btn btn-link" (click)="unselectMode()"><i class="fas fa-arrow-left"></i>&nbsp;Back</button>
-        </div>
-        <div class="col d-flex justify-content-start">
-            <h3 *ngIf="selectedMode == modesEnum.FILE">Stream from a file</h3>
-            <h3 *ngIf="selectedMode == modesEnum.LIVE">Live stream</h3>
-        </div>
+  }
+  @if (selectedMode != null) {
+    <div class="row mb-2">
+      <div class="col-sm-2">
+        <button class="btn btn-link" (click)="unselectMode()"><i class="fas fa-arrow-left"></i>&nbsp;Back</button>
+      </div>
+      <div class="col d-flex justify-content-start">
+        @if (selectedMode == modesEnum.FILE) {
+          <h3>Stream from a file</h3>
+        }
+        @if (selectedMode == modesEnum.LIVE) {
+          <h3>Live stream</h3>
+        }
+      </div>
     </div>
-    <div *ngIf="selectedMode == modesEnum.FILE">
-        <app-select-file (files)="onFiles($event)"></app-select-file>
+  }
+  @if (selectedMode == modesEnum.FILE) {
+    <div>
+      <app-select-file (files)="onFiles($event)"></app-select-file>
     </div>
-    <div *ngIf="selectedMode == modesEnum.LIVE">
-        <app-select-source (source)="onSource($event)"></app-select-source>
+  }
+  @if (selectedMode == modesEnum.LIVE) {
+    <div>
+      <app-select-source (source)="onSource($event)"></app-select-source>
     </div>
+  }
 </div>
 <div class="mt-3">
-    <!--Just to make some space at the bottom-->
+  <!--Just to make some space at the bottom-->
 </div>
