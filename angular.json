@@ -110,21 +110,21 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "comeover-client:build"
+            "buildTarget": "comeover-client:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "comeover-client:build:production"
+              "buildTarget": "comeover-client:build:production"
             },
             "staging": {
-              "browserTarget": "comeover-client:build:staging"
+              "buildTarget": "comeover-client:build:staging"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "comeover-client:build"
+            "buildTarget": "comeover-client:build"
           }
         },
         "test": {
