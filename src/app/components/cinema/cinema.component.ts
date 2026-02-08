@@ -4,7 +4,7 @@ import { WebTorrentService } from 'src/app/services/web-torrent/web-torrent.serv
 import { SyncService } from 'src/app/services/sync/sync.service';
 import { UserService } from 'src/app/services/user/user.service';
 import { UserData } from 'src/app/models/userData';
-import * as Plyr from 'plyr';
+import Plyr from 'plyr';
 import { Subscription, Subject } from 'rxjs';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { LoggerService } from 'src/app/services/logger/logger.service';
@@ -18,10 +18,17 @@ import { BytesPipe } from '../../pipes/bytes.pipe';
 import { DurationPipe } from '../../pipes/duration.pipe';
 
 @Component({
-    selector: 'app-cinema',
-    templateUrl: './cinema.component.html',
-    styleUrls: ['./cinema.component.scss'],
-    imports: [SocialComponent, CopyClipboardDirective, ToastsContainerComponent, PercentPipe, BytesPipe, DurationPipe]
+  selector: 'app-cinema',
+  templateUrl: './cinema.component.html',
+  styleUrls: ['./cinema.component.scss'],
+  imports: [
+    SocialComponent,
+    CopyClipboardDirective,
+    ToastsContainerComponent,
+    PercentPipe,
+    BytesPipe,
+    DurationPipe
+  ]
 })
 export class CinemaComponent implements OnInit, OnDestroy, AfterViewInit {
 

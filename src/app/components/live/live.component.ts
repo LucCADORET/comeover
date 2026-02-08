@@ -7,7 +7,7 @@ import { UserData } from 'src/app/models/userData';
 import { Subscription } from 'rxjs';
 import { LoggerService } from 'src/app/services/logger/logger.service';
 import { LiveService } from '../../services/live/live.service';
-import * as Plyr from 'plyr';
+import Plyr from 'plyr';
 import { ToastService } from '../../services/toast/toast.service';
 import { SocialComponent } from '../social/social.component';
 import { CopyClipboardDirective } from '../../directives/copy-clipboard.directive';
