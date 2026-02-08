@@ -13,7 +13,13 @@ export class Message {
         if (this.type == MessageTypeEnum.PING) {
             this.data = new UserData(message.data);
         } else if (this.type == MessageTypeEnum.CHAT) {
-            this.data = new ChatMessage(message.data);
+            this.data = new ChatMessage(
+                message.data.userId,
+                message.data.username,
+                message.data.color,
+                message.data.content,
+                message.data.timestamp,
+            );
         } else if (this.type == MessageTypeEnum.MANIFEST) {
             this.data = new Manifest(message.data)
         }

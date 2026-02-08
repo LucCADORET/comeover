@@ -1,13 +1,21 @@
 export class ChatMessage {
+    userId: string;
     username: string;
     color: string;
     content: string;
-    timestamp: string;
+    timestamp: number;
 
-    constructor(data: any) {
-        this.username = data.username;
-        this.content = data.content;
-        this.timestamp = data.timestamp;
-        this.color = data.color;
+    constructor(
+        userId: string,
+        username: string,
+        color: string,
+        content: string,
+        timestamp: number,
+    ) {
+        this.userId = userId;
+        this.username = username;
+        this.color = color;
+        this.content = content;
+        this.timestamp = timestamp;
     }
 }

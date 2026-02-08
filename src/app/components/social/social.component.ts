@@ -8,10 +8,10 @@ import { ChatMessage } from 'src/app/models/chatMessage';
 import { Subscription } from 'rxjs';
 
 @Component({
-    selector: 'app-social',
-    templateUrl: './social.component.html',
-    styleUrls: ['./social.component.scss'],
-    standalone: false
+  selector: 'app-social',
+  templateUrl: './social.component.html',
+  styleUrls: ['./social.component.scss'],
+  standalone: false
 })
 export class SocialComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -88,12 +88,13 @@ export class SocialComponent implements OnInit, OnDestroy, AfterViewInit {
 
   sendChatMessage() {
     if (!this.message) return;
-    let chatMessage = new ChatMessage({
-      username: this.username,
-      color: this.color,
-      content: this.message,
-      timestamp: new Date().getTime()
-    });
+    let chatMessage = new ChatMessage(
+      this.userId,
+      this.username,
+      this.color,
+      this.message,
+      new Date().getTime()
+    );
     this.syncService.broadcastChatMessage(chatMessage);
     this.message = "";
   }

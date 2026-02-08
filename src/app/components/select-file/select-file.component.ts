@@ -65,8 +65,8 @@ export class SelectFileComponent implements OnInit {
     this.transcodingProgress = 0;
 
     // Get subtitle file either from a given file, either from the video file (if needed)
-    let getSubbtitlePromise = new Promise((resolve, reject) => {
-      resolve();
+    let getSubbtitlePromise = new Promise<File | null>((resolve, reject) => {
+      resolve(null);
     });
     if (subtitleFile) {
       getSubbtitlePromise = this.transcodingService.convertSubtitlesIfNeeded(subtitleFile);
